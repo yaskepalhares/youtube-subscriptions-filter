@@ -37,57 +37,7 @@
     </section>
 
     <section class="card">
-      <h2><span class="step">1</span> <span data-i18n="optChannelsTitle"></span></h2>
-      <p id="channels-status" class="status"></p>
-      <div class="actions">
-        <button id="btn-import-youtube" class="primary" type="button" data-i18n="optImportYoutube"></button>
-        <button id="btn-import-csv" type="button" data-i18n="optImportCsv"></button>
-        <input id="file-csv" type="file" accept=".csv,text/csv" hidden>
-      </div>
-      <p class="help" data-i18n="optImportHelp"></p>
-      <p id="msg-import" class="msg" hidden></p>
-    </section>
-
-    <section class="card">
-      <h2><span class="step">2</span> <span data-i18n="optThemesTitle"></span></h2>
-      <p class="help" data-i18n="optThemesHelp"></p>
-      <div id="theme-list" class="themes"></div>
-      <div class="actions">
-        <button id="btn-new-theme" type="button" data-i18n="optNewTheme"></button>
-        <button id="btn-restore-defaults" type="button" class="subtle" data-i18n="optRestoreDefaults"></button>
-      </div>
-      <div id="suggestions" class="suggestions" hidden>
-        <h3 data-i18n="optSuggestionsTitle"></h3>
-        <p class="help" data-i18n="optSuggestionsHelp"></p>
-        <div id="suggestion-list" class="suggestion-list"></div>
-        <div id="words-block" hidden>
-          <p class="help" data-i18n="optWordsHelp"></p>
-          <div id="frequent-words" class="words"></div>
-        </div>
-      </div>
-      <div class="classify">
-        <button id="btn-classify" class="primary" type="button" data-i18n="optClassify"></button>
-        <label class="check">
-          <input id="chk-include-manual" type="checkbox">
-          <span data-i18n="optIncludeManual"></span>
-        </label>
-      </div>
-      <p id="msg-classify" class="msg" hidden></p>
-    </section>
-
-    <section class="card">
-      <h2><span class="step">3</span> <span data-i18n="optReviewTitle"></span></h2>
-      <p class="help" data-i18n="optReviewHelp"></p>
-      <div class="filters">
-        <input id="search" type="search" autocomplete="off" data-i18n-placeholder="optSearchPlaceholder">
-        <select id="list-filter" data-i18n-aria-label="optListFilterLabel"></select>
-        <span id="list-count" class="status"></span>
-      </div>
-      <div id="channel-list" class="channels"></div>
-    </section>
-
-    <section class="card">
-      <h2><span class="step">4</span> <span data-i18n="optOptionsTitle"></span></h2>
+      <h2><span class="step">1</span> <span data-i18n="optOptionsTitle"></span></h2>
       <label class="check">
         <input id="opt-hide-shorts" type="checkbox">
         <span data-i18n="optHideShorts"></span>
@@ -118,6 +68,57 @@
       </div>
       <p id="msg-backup" class="msg" hidden></p>
     </section>
+
+    <section class="card">
+      <h2><span class="step">2</span> <span data-i18n="optChannelsTitle"></span></h2>
+      <p id="channels-status" class="status"></p>
+      <div class="actions">
+        <button id="btn-import-youtube" class="primary" type="button" data-i18n="optImportYoutube"></button>
+        <button id="btn-import-csv" type="button" data-i18n="optImportCsv"></button>
+        <input id="file-csv" type="file" accept=".csv,text/csv" hidden>
+      </div>
+      <p class="help" data-i18n="optImportHelp"></p>
+      <p id="msg-import" class="msg" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">3</span> <span data-i18n="optThemesTitle"></span></h2>
+      <p class="help" data-i18n="optThemesHelp"></p>
+      <div id="theme-list" class="themes"></div>
+      <div class="actions">
+        <button id="btn-new-theme" type="button" data-i18n="optNewTheme"></button>
+        <button id="btn-restore-defaults" type="button" class="subtle" data-i18n="optRestoreDefaults"></button>
+      </div>
+      <div id="suggestions" class="suggestions" hidden>
+        <h3 data-i18n="optSuggestionsTitle"></h3>
+        <p class="help" data-i18n="optSuggestionsHelp"></p>
+        <div id="suggestion-list" class="suggestion-list"></div>
+        <div id="words-block" hidden>
+          <p class="help" data-i18n="optWordsHelp"></p>
+          <div id="frequent-words" class="words"></div>
+        </div>
+      </div>
+      <div class="classify">
+        <button id="btn-classify" class="primary" type="button" data-i18n="optClassify"></button>
+        <label class="check">
+          <input id="chk-include-manual" type="checkbox">
+          <span data-i18n="optIncludeManual"></span>
+        </label>
+      </div>
+      <p id="msg-classify" class="msg" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">4</span> <span data-i18n="optReviewTitle"></span></h2>
+      <p class="help" data-i18n="optReviewHelp"></p>
+      <div class="filters">
+        <input id="search" type="search" autocomplete="off" data-i18n-placeholder="optSearchPlaceholder">
+        <select id="list-filter" data-i18n-aria-label="optListFilterLabel"></select>
+        <span id="list-count" class="status"></span>
+      </div>
+      <div id="channel-list" class="channels"></div>
+    </section>
+
   </main>
 
   <script src="catalog.js"></script>
