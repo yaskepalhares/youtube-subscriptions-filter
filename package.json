@@ -1,0 +1,13 @@
+{
+  "name": "youtube-subscriptions-filter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extensão do Safari que separa o feed de inscrições do YouTube por temáticas.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node testes/teste.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}

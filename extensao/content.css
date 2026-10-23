@@ -1,0 +1,143 @@
+/* Itens escondidos pelo filtro */
+[data-ytcat-oculto] {
+  display: none !important;
+}
+
+/* Barra de pílulas no topo do feed de inscrições */
+.ytcat-barra {
+  position: sticky;
+  top: var(--ytd-masthead-height, 56px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 24px;
+  background: var(--yt-spec-base-background, #fff);
+  font-family: "Roboto", "Arial", sans-serif;
+}
+
+.ytcat-pilulas {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+}
+
+.ytcat-pilula,
+.ytcat-aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
+  color: var(--yt-spec-text-primary, #0f0f0f);
+  font: 500 14px/20px "Roboto", "Arial", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.ytcat-pilula:hover {
+  background: var(--yt-spec-button-chip-background-hover, rgba(0, 0, 0, 0.1));
+}
+
+.ytcat-pilula.ytcat-ativa {
+  background: var(--yt-spec-text-primary, #0f0f0f);
+  color: var(--yt-spec-text-primary-inverse, #fff);
+}
+
+.ytcat-n {
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.ytcat-aviso {
+  background: transparent;
+  color: var(--yt-spec-call-to-action, #065fd4);
+  text-decoration: underline;
+}
+
+.ytcat-lateral {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.ytcat-status {
+  color: var(--yt-spec-text-secondary, #606060);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ytcat-engrenagem {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--yt-spec-text-primary, #0f0f0f);
+  font-size: 18px;
+  line-height: 32px;
+  cursor: pointer;
+}
+
+.ytcat-engrenagem:hover {
+  background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
+}
+
+/* Painel de importação em /feed/channels */
+.ytcat-importador {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 3000;
+  box-sizing: border-box;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--yt-spec-menu-background, #fff);
+  color: var(--yt-spec-text-primary, #0f0f0f);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.25);
+  font: 400 14px/20px "Roboto", "Arial", sans-serif;
+}
+
+.ytcat-imp-titulo {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.ytcat-imp-status {
+  color: var(--yt-spec-text-secondary, #606060);
+}
+
+.ytcat-imp-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ytcat-imp-acoes:empty {
+  display: none;
+}
+
+.ytcat-botao {
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--yt-spec-text-primary, #0f0f0f);
+  color: var(--yt-spec-text-primary-inverse, #fff);
+  font: 500 14px/36px "Roboto", "Arial", sans-serif;
+  cursor: pointer;
+}

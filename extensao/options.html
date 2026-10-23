@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Filtro de Inscrições</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main class="pagina">
+    <header class="topo">
+      <h1>Filtro de Inscrições</h1>
+      <p class="sub">Separe o feed de inscrições do YouTube por temática.</p>
+    </header>
+
+    <section id="boas-vindas" class="aviso" hidden>
+      <strong>Primeiros passos</strong>
+      <ol>
+        <li>Importe a lista de canais em que você é inscrito.</li>
+        <li>Confira as temáticas e as palavras-chave de cada uma.</li>
+        <li>Revise a classificação automática e ajuste o que precisar.</li>
+      </ol>
+      <p>Depois, abra o <a href="https://www.youtube.com/feed/subscriptions" target="_blank" rel="noopener">feed de inscrições</a>: as pílulas aparecem no topo.</p>
+    </section>
+
+    <section class="bloco">
+      <h2><span class="num">1</span> Seus canais</h2>
+      <p id="status-canais" class="status">Nenhum canal importado ainda.</p>
+      <div class="acoes">
+        <button id="btn-importar-yt" class="primario" type="button">Importar do YouTube</button>
+        <button id="btn-importar-csv" type="button">Importar CSV do Google Takeout</button>
+        <input id="arquivo-csv" type="file" accept=".csv,text/csv" hidden>
+      </div>
+      <p class="ajuda">
+        <strong>Importar do YouTube</strong> abre a página com a lista dos seus canais numa nova aba. A extensão
+        rola a lista sozinha e lê nome, @ e descrição de cada canal. Deixe a aba aberta até aparecer “Pronto”.
+        Importar de novo atualiza a lista sem desfazer seus ajustes manuais.
+      </p>
+      <p id="msg-importacao" class="msg" hidden></p>
+    </section>
+
+    <section class="bloco">
+      <h2><span class="num">2</span> Temáticas</h2>
+      <p class="ajuda">
+        Cada temática tem palavras-chave, separadas por vírgula, procuradas no nome, no @ e na descrição dos canais.
+        Acentos e maiúsculas não importam. Termine com <code>*</code> para aceitar continuações:
+        <code>invest*</code> casa “investimentos” e “investidor”.
+      </p>
+      <div id="lista-categorias" class="categorias"></div>
+      <div class="acoes">
+        <button id="btn-nova-categoria" type="button">+ Nova temática</button>
+        <button id="btn-restaurar" type="button" class="discreto">Restaurar temáticas padrão</button>
+      </div>
+      <div class="classificar">
+        <button id="btn-classificar" class="primario" type="button">Classificar automaticamente</button>
+        <label class="check">
+          <input id="chk-incluir-manuais" type="checkbox">
+          Refazer também os canais que ajustei à mão
+        </label>
+      </div>
+      <p id="msg-classificacao" class="msg" hidden></p>
+    </section>
+
+    <section class="bloco">
+      <h2><span class="num">3</span> Revisão dos canais</h2>
+      <p class="ajuda">
+        Clique numa temática para incluir ou tirar o canal dela. Canais ajustados à mão ficam marcados e
+        não são alterados pela classificação automática; use ↺ para devolvê-los ao automático.
+      </p>
+      <div class="filtros">
+        <input id="busca" type="search" placeholder="Buscar canal…" autocomplete="off">
+        <select id="filtro-lista" aria-label="Mostrar"></select>
+        <span id="contagem-lista" class="status"></span>
+      </div>
+      <div id="lista-canais" class="canais"></div>
+    </section>
+
+    <section class="bloco">
+      <h2><span class="num">4</span> Opções</h2>
+      <label class="check">
+        <input id="opt-shorts" type="checkbox">
+        Esconder a prateleira de Shorts quando um filtro estiver ativo
+      </label>
+      <label class="check">
+        <input id="opt-sem-categoria" type="checkbox">
+        Mostrar a pílula “Sem categoria”
+      </label>
+      <h3>Backup</h3>
+      <div class="acoes">
+        <button id="btn-exportar" type="button">Exportar configurações (.json)</button>
+        <button id="btn-restaurar-backup" type="button">Restaurar de um arquivo</button>
+        <input id="arquivo-json" type="file" accept=".json,application/json" hidden>
+      </div>
+      <p id="msg-backup" class="msg" hidden></p>
+    </section>
+  </main>
+
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
