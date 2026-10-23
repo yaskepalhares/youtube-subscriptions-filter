@@ -461,10 +461,54 @@ async function testeSugestoesNaPagina() {
   dom.window.close();
 }
 
+// ---------------------------------------------------------------------------
+async function testeCabecalho() {
+  console.log('\nPosição da barra com o cabeçalho dentro da grade');
+  // Caso visto no YouTube: "Mais recentes" + "Todas as inscrições" vêm numa
+  // seção dentro de #contents, e chegam depois dos primeiros vídeos.
+  const html = `<!doctype html><body><ytd-browse page-subtype="subscriptions"><div id="primary">
+    <ytd-rich-grid-renderer><div id="contents">
+      ${cardLegado('@canaltech', 'Canaltech', 'v1')}
+      ${cardLegado('@framedrs', 'Framed', 'v2')}
+    </div></ytd-rich-grid-renderer></div></ytd-browse></body>`;
+  const dom = new JSDOM(html, { url: 'https://www.youtube.com/feed/subscriptions', runScripts: 'outside-only' });
+  const browser = fakeBrowser({
+    canais: {
+      'h:@canaltech': { handle: '@canaltech', nome: 'Canaltech', categorias: ['tecnologia'] },
+      'h:@framedrs': { handle: '@framedrs', nome: 'Framed', categorias: ['runescape'] }
+    }
+  });
+  carregarNaJanela(dom, browser, ['catalogo.js', 'shared.js', 'content.js']);
+  await esperar(400);
+  const d = dom.window.document;
+  confere(!!d.getElementById('ytcat-barra'), 'barra aparece antes de o cabeçalho existir');
+
+  const secao = d.createElement('ytd-rich-section-renderer');
+  secao.id = 'cabecalho-teste';
+  const titulo = d.createElement('h2');
+  titulo.textContent = 'Mais recentes';
+  const link = d.createElement('a');
+  link.setAttribute('href', '/feed/channels');
+  link.textContent = 'Todas as inscrições';
+  secao.append(titulo, link);
+  d.querySelector('#contents').prepend(secao);
+  await esperar(400);
+  const barra = d.getElementById('ytcat-barra');
+  confere(barra.previousElementSibling === secao, 'barra muda para logo depois de "Mais recentes"');
+  confere(barra.nextElementSibling && barra.nextElementSibling.tagName === 'YTD-RICH-ITEM-RENDERER', 'e fica antes dos vídeos');
+
+  barra.querySelector('[data-filtro="runescape"]').click();
+  await esperar(300);
+  confere(!secao.hasAttribute('data-ytcat-oculto'), 'cabeçalho continua visível com filtro ativo');
+  confere(d.getElementById('ytcat-barra').previousElementSibling === secao, 'barra continua no lugar depois de filtrar');
+  dom.window.close();
+}
+
 (async () => {
   await testeClassificador();
   await testeSugestoes();
   await testeFeed();
+  await testeCabecalho();
   await testeImportacao();
   await testeOpcoes();
   await testePermissao();

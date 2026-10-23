@@ -179,9 +179,7 @@
 
     let visiveis = 0;
     let naoIdentificados = 0;
-    const cards = [...raiz.querySelectorAll(SEL_CARDS)].filter(
-      (card) => !card.parentElement || !card.parentElement.closest(SEL_PRATELEIRAS)
-    );
+    const cards = [...raiz.querySelectorAll(SEL_CARDS)].filter(ehCardDeVideo);
 
     for (const card of cards) {
       // Anúncios e cards vazios não têm canal.
@@ -205,9 +203,12 @@
     }
 
     const ocultarPrateleiras = filtro !== FILTRO_TODOS && estado.config.ocultarShorts;
+    const cabecalho = cabecalhoDoFeed(raiz);
     for (const prateleira of raiz.querySelectorAll(SEL_PRATELEIRAS)) {
-      if (prateleira.hasAttribute(ATRIBUTO_OCULTO) !== ocultarPrateleiras) {
-        prateleira.toggleAttribute(ATRIBUTO_OCULTO, ocultarPrateleiras);
+      // O cabeçalho "Mais recentes" pode morar numa seção; ele nunca some.
+      const ocultar = ocultarPrateleiras && !(cabecalho && (prateleira === cabecalho || prateleira.contains(cabecalho)));
+      if (prateleira.hasAttribute(ATRIBUTO_OCULTO) !== ocultar) {
+        prateleira.toggleAttribute(ATRIBUTO_OCULTO, ocultar);
       }
     }
 
@@ -242,9 +243,35 @@
     }
   }
 
-  // A barra entra dentro da grade, entre o cabeçalho ("Mais recentes") e os
-  // vídeos, para não cobrir o cabeçalho.
+  function ehCardDeVideo(card) {
+    return !card.parentElement || !card.parentElement.closest(SEL_PRATELEIRAS);
+  }
+
+  // Cabeçalho "Mais recentes" do feed. É o bloco que tem o botão "Todas as
+  // inscrições", um link para /feed/channels, o que funciona em qualquer idioma.
+  // Devolve o ancestral desse link que fica no mesmo nível dos vídeos.
+  function cabecalhoDoFeed(raiz) {
+    const link = [...raiz.querySelectorAll('a[href*="/feed/channels"]')].find((a) => {
+      try {
+        return new URL(a.getAttribute('href'), 'https://www.youtube.com').pathname === '/feed/channels';
+      } catch (e) {
+        return false;
+      }
+    });
+    const card = [...raiz.querySelectorAll(SEL_CARDS)].find(ehCardDeVideo);
+    if (!link || !card) return null;
+    let el = link;
+    while (el.parentElement && el.parentElement !== raiz && !el.parentElement.contains(card)) {
+      el = el.parentElement;
+    }
+    return el.parentElement && el.parentElement.contains(card) && !el.contains(card) ? el : null;
+  }
+
+  // A barra fica logo depois do cabeçalho "Mais recentes" e antes dos vídeos.
+  // Sem achar o cabeçalho, fica no começo da grade.
   function pontoDeInsercao(raiz) {
+    const cabecalho = cabecalhoDoFeed(raiz);
+    if (cabecalho) return { depois: cabecalho };
     const grade = raiz.querySelector('ytd-rich-grid-renderer');
     const conteudo = grade && [...grade.children].find((el) => el.id === 'contents');
     if (conteudo) return { antes: conteudo };
@@ -258,14 +285,19 @@
 
   function garantirBarra(raiz, filtro, contagem, visiveis) {
     let barra = raiz.querySelector('#' + ID_BARRA);
+    const lugar = pontoDeInsercao(raiz);
     if (!barra) {
-      const lugar = pontoDeInsercao(raiz);
       if (!lugar) return;
       barra = criar('div', { id: ID_BARRA, className: 'ytcat-barra' });
       barra.addEventListener('click', aoClicarNaBarra);
-      if (lugar.antes) lugar.antes.before(barra);
-      else lugar.dentro.prepend(barra);
       assinaturaBarra = '';
+    }
+    // Põe (ou devolve) a barra no lugar certo; o YouTube monta o cabeçalho
+    // depois da grade, então o lugar pode mudar depois da primeira inserção.
+    if (lugar) {
+      if (lugar.depois && lugar.depois.nextElementSibling !== barra) lugar.depois.after(barra);
+      else if (lugar.antes && lugar.antes.previousElementSibling !== barra) lugar.antes.before(barra);
+      else if (lugar.dentro && lugar.dentro.firstElementChild !== barra) lugar.dentro.prepend(barra);
     }
     alinharBarra(raiz, barra);
 

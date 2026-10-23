@@ -45,6 +45,9 @@
   gap: 16px;
   box-sizing: border-box;
   width: 100%;
+  /* Ocupa a linha inteira quando fica dentro da grade de vídeos. */
+  flex: 0 0 100%;
+  grid-column: 1 / -1;
   padding: 8px 0 16px;
   background: var(--ytcat-fundo);
   color: var(--ytcat-texto);
