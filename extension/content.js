@@ -22,6 +22,15 @@
   const SHELF_SELECTOR = 'ytd-rich-section-renderer, ytd-reel-shelf-renderer, ytd-rich-shelf-renderer';
   const CHANNEL_LIST_SELECTOR = 'ytd-channel-renderer';
 
+  // Red "resume playback" bar YouTube draws under the thumbnail of videos you
+  // have watched: the old card layout and the newer "lockup" layout.
+  const PROGRESS_SELECTORS = [
+    'ytd-thumbnail-overlay-resume-playback-renderer #progress',
+    '[class*="WatchedProgressBarSegment"]',
+    'yt-thumbnail-overlay-progress-bar-view-model [style*="width"]',
+    '[class*="resume-playback"] [style*="width"]'
+  ];
+
   const CARD_CHANNEL_NAME_SELECTORS = [
     'ytd-channel-name #text',
     '#channel-name #text',
@@ -114,15 +123,18 @@
     else if (!importing) removeImporter();
   }
 
+  const PROGRESS_MATCH = PROGRESS_SELECTORS.join(', ');
   const observer = new MutationObserver((mutations) => {
     for (const m of mutations) {
       const target = m.target;
       if (target && target.closest && target.closest('#' + BAR_ID + ', #' + IMPORTER_ID)) continue;
+      // Style changes are everywhere on YouTube; only the watched-progress bar matters.
+      if (m.type === 'attributes' && !(state && state.settings.hideWatched && target.matches && target.matches(PROGRESS_MATCH))) continue;
       schedule();
       return;
     }
   });
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
 
   document.addEventListener('yt-navigate-finish', () => schedule(0));
   document.addEventListener('yt-page-data-updated', () => schedule(0));
@@ -157,6 +169,23 @@
     return { channel: null, identified: hasHint };
   }
 
+  // How much of the video was watched (0-100), from the thumbnail's red bar.
+  function watchedPercent(card) {
+    let best = 0;
+    for (const sel of PROGRESS_SELECTORS) {
+      for (const bar of card.querySelectorAll(sel)) {
+        const m = (bar.style && bar.style.width || '').match(/^([\d.]+)%$/);
+        if (m) best = Math.max(best, Number(m[1]));
+      }
+    }
+    return best;
+  }
+
+  function isWatched(card) {
+    const threshold = Number(state.settings.watchedThreshold) || 90;
+    return watchedPercent(card) >= threshold;
+  }
+
   // Selected themes that still exist. An empty list means "All".
   function validFilters() {
     const ids = new Set(state.themes.map((c) => c.id));
@@ -179,9 +208,18 @@
 
     let visible = 0;
     let unidentified = 0;
+    let watchedHidden = 0;
+    const hideWatched = !!state.settings.hideWatched;
     const cards = [...root.querySelectorAll(CARD_SELECTOR)].filter(isVideoCard);
 
     for (const card of cards) {
+      // Watched videos leave the feed (and the counts) while the switch is on.
+      if (hideWatched && isWatched(card)) {
+        watchedHidden++;
+        if (!card.hasAttribute(HIDDEN_ATTR)) card.setAttribute(HIDDEN_ATTR, '');
+        continue;
+      }
+
       // Ads and empty cards have no channel.
       const { channel, identified } = identifyCard(card);
       const themes = channel ? channel.themes || [] : [];
@@ -212,7 +250,7 @@
       log('No video cards found in the feed (YouTube may have changed its layout).');
     }
 
-    ensureBar(root, filters, counts, visible);
+    ensureBar(root, filters, counts, visible, watchedHidden);
     nudgeLoading(root, showAll, visible);
     const summary = `${unidentified}/${cards.length}`;
     if (unidentified > 0 && summary !== lastUnidentifiedLog) {
@@ -272,7 +310,7 @@
     return null;
   }
 
-  function ensureBar(root, filters, counts, visible) {
+  function ensureBar(root, filters, counts, visible, watchedHidden) {
     const showAll = filters.length === 0;
     let bar = root.querySelector('#' + BAR_ID);
     const spot = insertionPoint(root);
@@ -293,7 +331,7 @@
 
     const noChannels = Object.keys(state.channels).length === 0;
     const signature = JSON.stringify([
-      filters, counts, visible, noChannels,
+      filters, counts, visible, noChannels, watchedHidden, state.settings.hideWatched,
       state.themes.map((c) => [c.id, c.name]),
       state.settings.showUncategorized
     ]);
@@ -337,6 +375,7 @@
         text: t('barLoadedStatus', visible, counts[FILTER_ALL])
       }));
     }
+    side.append(watchedSwitch(watchedHidden));
     const settingsButton = create('button', {
       type: 'button',
       className: 'ytcat-settings',
@@ -348,6 +387,23 @@
     side.append(settingsButton);
 
     bar.replaceChildren(pills, side);
+  }
+
+  // "Hide watched" switch. Shows how many watched videos are hidden.
+  function watchedSwitch(hiddenCount) {
+    const on = !!state.settings.hideWatched;
+    const label = on && hiddenCount ? t('barHideWatchedCount', hiddenCount) : t('barHideWatched');
+    return create('button', {
+      type: 'button',
+      className: 'ytcat-switch' + (on ? ' ytcat-on' : ''),
+      role: 'switch',
+      'aria-checked': String(on),
+      'data-action': 'toggle-watched',
+      title: t('barHideWatchedTitle', Number(state.settings.watchedThreshold) || 90)
+    }, [
+      create('span', { className: 'ytcat-switch-label', text: label }),
+      create('span', { className: 'ytcat-switch-track' }, [create('span', { className: 'ytcat-switch-thumb' })])
+    ]);
   }
 
   // Settings icon (three sliders), drawn with SVG.
@@ -408,6 +464,17 @@
     if (!target) return;
     if (target.dataset.action === 'settings') {
       openSettings();
+      return;
+    }
+    if (target.dataset.action === 'toggle-watched') {
+      state.settings.hideWatched = !state.settings.hideWatched;
+      if (!state.settings.hideWatched) {
+        // Bring back the watched cards; the next pass applies the theme filter again.
+        for (const card of feedRoot().querySelectorAll('[' + HIDDEN_ATTR + ']')) card.removeAttribute(HIDDEN_ATTR);
+      }
+      barSignature = '';
+      processFeed();
+      Y.save({ settings: state.settings });
       return;
     }
     const id = target.dataset.filter;

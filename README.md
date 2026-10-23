@@ -18,6 +18,9 @@ The interface follows your system language. English and Brazilian Portuguese are
   with the number of loaded videos. Select several themes at once to see videos from any of them;
   unselecting the last one goes back to *All*. The bar stays in view while you scroll, follows the
   system light/dark mode, and remembers your selection.
+- **Hide watched videos.** A switch in the pill bar hides the videos you have already watched,
+  using the red progress bar YouTube draws under thumbnails (90% or more by default, adjustable in
+  the settings). It works together with the theme filters and needs YouTube's watch history on.
 - **One-click import.** *Import from YouTube* opens your channel list, scrolls through it and reads
   each channel's name, @handle, description and avatar. A Google Takeout `subscriptions.csv` also
   works.

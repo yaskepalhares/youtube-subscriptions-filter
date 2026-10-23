@@ -42,6 +42,25 @@
   "barSettings": {
     "message": "Configurar temáticas"
   },
+  "barHideWatched": {
+    "message": "Ocultar assistidos"
+  },
+  "barHideWatchedCount": {
+    "message": "Ocultar assistidos ($P1$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "barHideWatchedTitle": {
+    "message": "Esconde vídeos que você assistiu pelo menos $P1$%",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
   "importerIntro": {
     "message": "Importe esta lista de canais para classificá-los por temática."
   },
@@ -237,6 +256,12 @@
   },
   "optShowUncategorized": {
     "message": "Mostrar a pílula “Sem categoria”"
+  },
+  "optWatchedThreshold": {
+    "message": "Um vídeo conta como assistido a partir de"
+  },
+  "optWatchedHelp": {
+    "message": "Usa a barra vermelha de progresso que o YouTube mostra embaixo das miniaturas. Ligue e desligue com o botão “Ocultar assistidos” na barra de pílulas. Vídeos não ganham barra de progresso se o histórico de exibição do YouTube estiver pausado."
   },
   "optBackupTitle": {
     "message": "Backup"

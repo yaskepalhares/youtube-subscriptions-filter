@@ -42,6 +42,25 @@
   "barSettings": {
     "message": "Theme settings"
   },
+  "barHideWatched": {
+    "message": "Hide watched"
+  },
+  "barHideWatchedCount": {
+    "message": "Hide watched ($P1$)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "barHideWatchedTitle": {
+    "message": "Hide videos you watched at least $P1$% of",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
   "importerIntro": {
     "message": "Import this channel list to sort your channels into themes."
   },
@@ -237,6 +256,12 @@
   },
   "optShowUncategorized": {
     "message": "Show the “Uncategorized” pill"
+  },
+  "optWatchedThreshold": {
+    "message": "A video counts as watched from"
+  },
+  "optWatchedHelp": {
+    "message": "Uses the red progress bar YouTube shows under the thumbnails. Turn hiding on and off with the “Hide watched” switch in the pill bar. Videos don't get a progress bar if your YouTube watch history is paused."
   },
   "optBackupTitle": {
     "message": "Backup"

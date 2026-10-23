@@ -197,6 +197,17 @@ button.subtle {
   margin: 12px 0;
 }
 
+.check .number {
+  width: 64px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
 .check {
   display: flex;
   align-items: center;

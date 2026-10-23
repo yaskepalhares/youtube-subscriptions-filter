@@ -143,6 +143,64 @@
   stroke-linecap: round;
 }
 
+/* "Hide watched" switch */
+.ytcat-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 4px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ytcat-text-2);
+  font: 500 14px/20px "Roboto", "Arial", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ytcat-switch:hover {
+  color: var(--ytcat-text);
+}
+
+.ytcat-switch.ytcat-on {
+  color: var(--ytcat-text);
+}
+
+.ytcat-switch:focus-visible {
+  outline: 2px solid var(--ytcat-text);
+  outline-offset: 2px;
+}
+
+.ytcat-switch-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--ytcat-pill-hover);
+  transition: background-color 0.15s ease;
+}
+
+.ytcat-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ytcat-bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.ytcat-on .ytcat-switch-track {
+  background: var(--ytcat-active);
+}
+
+.ytcat-on .ytcat-switch-thumb {
+  transform: translateX(16px);
+}
+
 /* Import panel on /feed/channels */
 .ytcat-importer {
   position: fixed;

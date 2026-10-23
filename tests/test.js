@@ -605,12 +605,67 @@ async function testSuggestionsOnPage() {
   dom.window.close();
 }
 
+// ---------------------------------------------------------------------------
+async function testHideWatched() {
+  console.log('\nHide watched videos');
+  // Old layout: ytd-thumbnail-overlay-resume-playback-renderer #progress.
+  // New layout: progress bar segment inside the lockup thumbnail.
+  const oldWatched = (handle, name, title, pct) => legacyCard(handle, name, title).replace('<a id="thumbnail"',
+    `<ytd-thumbnail-overlay-resume-playback-renderer><div id="progress" style="width: ${pct}%;"></div></ytd-thumbnail-overlay-resume-playback-renderer><a id="thumbnail"`);
+  const newWatched = (href, name, title, pct) => lockupCard(href, name, title).replace('<yt-lockup-metadata-view-model>',
+    `<yt-thumbnail-overlay-progress-bar-view-model><div class="ytThumbnailOverlayProgressBarHostWatchedProgressBarSegment" style="width: ${pct}%"></div></yt-thumbnail-overlay-progress-bar-view-model><yt-lockup-metadata-view-model>`);
+  const html = `<!doctype html><body><ytd-browse page-subtype="subscriptions"><div id="primary">
+    <ytd-rich-grid-renderer><div id="contents">
+      ${oldWatched('@canaltech', 'Canaltech', 'w1', 100)}
+      ${newWatched('/@framedrs', 'Framed', 'w2', 95)}
+      ${newWatched('/@framedrs', 'Framed', 'w3', 40)}
+      ${legacyCard('@canaltech', 'Canaltech', 'w4')}
+    </div></ytd-rich-grid-renderer></div></ytd-browse></body>`;
+  const dom = new JSDOM(html, { url: 'https://www.youtube.com/feed/subscriptions', runScripts: 'outside-only' });
+  const browser = fakeBrowser({ channels: feedChannels });
+  loadInto(dom, browser, [...SHARED, 'content.js']);
+  await sleep(400);
+  const d = dom.window.document;
+  const cards = () => [...d.querySelectorAll('#contents > ytd-rich-item-renderer')];
+  const hiddenTitles = () => cards().filter((c) => c.hasAttribute('data-ytcat-hidden')).map((c) => c.querySelector('a[href^="/watch"]').getAttribute('href').slice(9));
+  const sw = () => d.querySelector('#ytcat-bar [data-action="toggle-watched"]');
+  check(!!sw() && sw().getAttribute('aria-checked') === 'false', 'switch is in the bar, off by default');
+  check(hiddenTitles().length === 0, 'nothing hidden while the switch is off');
+
+  sw().click();
+  await sleep(50);
+  check(hiddenTitles().join() === 'w1,w2', 'switch on hides videos watched >= 90% (old and new layouts), keeps 40%: ' + hiddenTitles().join());
+  check(sw().getAttribute('aria-checked') === 'true' && /\(2\)/.test(sw().textContent), 'switch shows how many were hidden: ' + sw().textContent);
+  const count = (id) => Number(d.querySelector(`#ytcat-bar [data-filter="${id}"] .ytcat-count`).textContent);
+  check(count('all') === 2 && count('technology') === 1, 'counts leave watched videos out');
+  await sleep(300);
+  check(browser._data.settings && browser._data.settings.hideWatched === true, 'switch state is saved');
+
+  // Works together with the theme filter.
+  d.querySelector('#ytcat-bar [data-filter="runescape"]').click();
+  await sleep(50);
+  check(hiddenTitles().join() === 'w1,w2,w4', 'theme filter + hide watched: only the unfinished Framed video is left');
+
+  // A video finished while browsing: YouTube updates the bar and it disappears.
+  d.querySelector('#contents > ytd-rich-item-renderer:nth-child(3) [style*="width"]').style.width = '97%';
+  await sleep(400);
+  check(hiddenTitles().includes('w3'), 'video that becomes watched is hidden on the fly');
+
+  d.querySelector('#ytcat-bar [data-filter="runescape"]').click();
+  await sleep(50);
+  sw().click();
+  await sleep(50);
+  check(hiddenTitles().length === 0 && count('all') === 4, 'switch off brings every video back');
+  dom.window.close();
+}
+
 (async () => {
   await testClassifier();
   await testSuggestions();
   await testMigration();
   await testFeed();
   await testHeaderPosition();
+  await testHideWatched();
   await testImport();
   await testSettingsPage();
   await testPortugueseLocale();

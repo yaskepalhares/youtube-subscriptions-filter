@@ -48,6 +48,8 @@
   const DEFAULT_SETTINGS = {
     hideShorts: true,          // hide the Shorts shelf while a filter is active
     showUncategorized: true,   // show the "Uncategorized" pill
+    hideWatched: false,        // hide videos already watched (switch in the pill bar)
+    watchedThreshold: 90,      // % of the progress bar from which a video counts as watched
     dismissedSuggestions: []   // catalog themes the user does not want suggested
   };
 

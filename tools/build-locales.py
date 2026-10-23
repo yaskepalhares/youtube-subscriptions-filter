@@ -25,6 +25,9 @@ MESSAGES = {
     'barImportHint': ('Import your channels to get started', 'Importe seus canais para começar'),
     'barLoadedStatus': ('$1 of $2 loaded videos', '$1 de $2 vídeos carregados'),
     'barSettings': ('Theme settings', 'Configurar temáticas'),
+    'barHideWatched': ('Hide watched', 'Ocultar assistidos'),
+    'barHideWatchedCount': ('Hide watched ($1)', 'Ocultar assistidos ($1)'),
+    'barHideWatchedTitle': ('Hide videos you watched at least $1% of', 'Esconde vídeos que você assistiu pelo menos $1%'),
 
     # Import panel on YouTube
     'importerIntro': ('Import this channel list to sort your channels into themes.',
@@ -95,6 +98,9 @@ MESSAGES = {
     'optOptionsTitle': ('Options', 'Opções'),
     'optHideShorts': ('Hide the Shorts shelf while a filter is on', 'Esconder a prateleira de Shorts quando um filtro estiver ativo'),
     'optShowUncategorized': ('Show the “Uncategorized” pill', 'Mostrar a pílula “Sem categoria”'),
+    'optWatchedThreshold': ('A video counts as watched from', 'Um vídeo conta como assistido a partir de'),
+    'optWatchedHelp': ("Uses the red progress bar YouTube shows under the thumbnails. Turn hiding on and off with the “Hide watched” switch in the pill bar. Videos don't get a progress bar if your YouTube watch history is paused.",
+                       'Usa a barra vermelha de progresso que o YouTube mostra embaixo das miniaturas. Ligue e desligue com o botão “Ocultar assistidos” na barra de pílulas. Vídeos não ganham barra de progresso se o histórico de exibição do YouTube estiver pausado.'),
     'optBackupTitle': ('Backup', 'Backup'),
     'optExport': ('Export settings (.json)', 'Exportar configurações (.json)'),
     'optRestoreBackup': ('Restore from a file', 'Restaurar de um arquivo'),
