@@ -22,16 +22,26 @@
     "service_worker": "background.js"
   },
   "options_ui": {
-    "page": "options.html",
-    "open_in_tab": true
+    "page": "options.html"
   },
-  "permissions": ["storage"],
-  "host_permissions": ["*://www.youtube.com/*"],
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://www.youtube.com/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["*://www.youtube.com/*"],
-      "js": ["shared.js", "content.js"],
-      "css": ["content.css"],
+      "matches": [
+        "*://www.youtube.com/*"
+      ],
+      "js": [
+        "shared.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
       "run_at": "document_idle"
     }
   ]

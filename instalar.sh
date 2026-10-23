@@ -70,6 +70,15 @@ PROJETO="$(find "$PROJETO_DIR" -maxdepth 3 -name '*.xcodeproj' | head -n 1)"
 [[ -n "$PROJETO" ]] || falha "o conversor não gerou um projeto do Xcode."
 echo "Projeto: $PROJETO"
 
+# O conversor monta o identificador do app a partir do nome ("…Subscriptions-Filter")
+# e o da extensão a partir do --bundle-identifier, e os dois deixam de casar.
+# Aqui alinhamos: app = $BUNDLE_ID e extensão = $BUNDLE_ID.Extension.
+BID="$BUNDLE_ID" perl -pi -e '
+  if (/PRODUCT_BUNDLE_IDENTIFIER = /) {
+    if (/\.Extension"?;/) { s/(PRODUCT_BUNDLE_IDENTIFIER = ).*;/$1"$ENV{BID}.Extension";/ }
+    else                  { s/(PRODUCT_BUNDLE_IDENTIFIER = ).*;/$1"$ENV{BID}";/ }
+  }' "$PROJETO/project.pbxproj"
+
 ESQUEMAS="$(xcodebuild -list -project "$PROJETO" 2>/dev/null | sed -n '/Schemes:/,$p' | tail -n +2 | sed 's/^ *//' | grep -v '^$' || true)"
 ESQUEMA="$(grep -i 'macos' <<<"$ESQUEMAS" | head -n 1 || true)"
 [[ -n "$ESQUEMA" ]] || ESQUEMA="$(head -n 1 <<<"$ESQUEMAS")"
@@ -80,8 +89,15 @@ echo "Esquema: $ESQUEMA"
 passo "Escolhendo a assinatura"
 
 if [[ -z "${TEAM_ID:-}" && -z "${SEM_ASSINATURA:-}" ]]; then
-  # O time vem do campo OU do certificado "Apple Development" criado pelo Xcode
-  # quando você entra com seu Apple ID (Xcode › Settings › Accounts).
+  # 1) Times das contas cadastradas no Xcode (Settings › Accounts).
+  for chave in IDEProvisioningTeamByIdentifier IDEProvisioningTeams; do
+    TEAM_ID="$(defaults read com.apple.dt.Xcode "$chave" 2>/dev/null \
+      | sed -n 's/.*teamID = "*\([A-Z0-9]\{10\}\)"*;.*/\1/p' | head -n 1 || true)"
+    [[ -n "$TEAM_ID" ]] && break
+  done
+fi
+if [[ -z "${TEAM_ID:-}" && -z "${SEM_ASSINATURA:-}" ]]; then
+  # 2) Campo OU de um certificado "Apple Development" já existente.
   TEAM_ID="$(security find-certificate -a -c "Apple Development" -p 2>/dev/null \
     | openssl x509 -noout -subject 2>/dev/null \
     | sed -n 's/.*OU *= *\([A-Z0-9]\{10\}\).*/\1/p' | head -n 1 || true)"
