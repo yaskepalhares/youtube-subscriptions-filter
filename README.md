@@ -21,6 +21,9 @@ The interface follows your system language. English and Brazilian Portuguese are
 - **Hide watched videos.** A switch in the pill bar hides the videos you have already watched,
   using the red progress bar YouTube draws under thumbnails (90% or more by default, adjustable in
   the settings). It works together with the theme filters and needs YouTube's watch history on.
+- **Hide live and scheduled videos.** Two separate options in the settings hide streams that are
+  live right now and scheduled streams or premieres. Finished streams stay, since they are regular
+  videos by then.
 - **One-click import.** *Import from YouTube* opens your channel list, scrolls through it and reads
   each channel's name, @handle, description and avatar. A Google Takeout `subscriptions.csv` also
   works.

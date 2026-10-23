@@ -659,6 +659,49 @@ async function testHideWatched() {
   dom.window.close();
 }
 
+// ---------------------------------------------------------------------------
+async function testHideLiveAndUpcoming() {
+  console.log('\nHide live and scheduled videos');
+  const withOverlay = (card, style) => card.replace('<a id="thumbnail"',
+    `<ytd-thumbnail-overlay-time-status-renderer overlay-style="${style}"><span>${style}</span></ytd-thumbnail-overlay-time-status-renderer><a id="thumbnail"`);
+  const withBadge = (card, cls, text) => card.replace('<yt-lockup-metadata-view-model>',
+    `<badge-shape class="${cls}"><div>${text}</div></badge-shape><yt-lockup-metadata-view-model>`);
+  const html = `<!doctype html><body><ytd-browse page-subtype="subscriptions"><div id="primary">
+    <ytd-rich-grid-renderer><div id="contents">
+      ${withOverlay(legacyCard('@canaltech', 'Canaltech', 'live1'), 'LIVE')}
+      ${withBadge(lockupCard('/@framedrs', 'Framed', 'live2'), 'badge-shape-wiz badge-shape-wiz--thumbnail-live', 'AO VIVO')}
+      ${withOverlay(legacyCard('@canaltech', 'Canaltech', 'soon1'), 'UPCOMING')}
+      ${withBadge(lockupCard('/@framedrs', 'Framed', 'soon2'), 'badge-shape-wiz badge-shape-wiz--thumbnail-default', 'Em breve')}
+      ${withBadge(lockupCard('/@framedrs', 'Framed', 'ended'), 'badge-shape-wiz badge-shape-wiz--thumbnail-default', '3:29:54')}
+      ${legacyCard('@canaltech', 'Canaltech', 'normal')}
+    </div></ytd-rich-grid-renderer></div></ytd-browse></body>`;
+  const dom = new JSDOM(html, { url: 'https://www.youtube.com/feed/subscriptions', runScripts: 'outside-only' });
+  const browser = fakeBrowser({ channels: feedChannels, settings: { hideLive: true, hideUpcoming: false } });
+  loadInto(dom, browser, [...SHARED, 'content.js']);
+  await sleep(400);
+  const d = dom.window.document;
+  const hiddenTitles = () => [...d.querySelectorAll('#contents > ytd-rich-item-renderer')]
+    .filter((c) => c.hasAttribute('data-ytcat-hidden'))
+    .map((c) => c.querySelector('a[href^="/watch"]').getAttribute('href').slice(9));
+  check(hiddenTitles().join() === 'live1,live2', 'live videos hidden (overlay attribute and badge class): ' + hiddenTitles().join());
+  check(!d.querySelector('#ytcat-bar [data-action="toggle-live"]'), 'no extra button in the bar');
+  const count = () => Number(d.querySelector('#ytcat-bar [data-filter="all"] .ytcat-count').textContent);
+  check(count() === 4, 'hidden live videos leave the counts');
+
+  await browser.storage.local.set({ settings: { hideLive: false, hideUpcoming: true } });
+  await sleep(400);
+  check(hiddenTitles().join() === 'soon1,soon2', 'scheduled videos hidden (attribute and "Em breve" text); live ones back: ' + hiddenTitles().join());
+
+  await browser.storage.local.set({ settings: { hideLive: true, hideUpcoming: true } });
+  await sleep(400);
+  check(hiddenTitles().join() === 'live1,live2,soon1,soon2', 'both options together; ended stream and normal video stay');
+
+  await browser.storage.local.set({ settings: { hideLive: false, hideUpcoming: false } });
+  await sleep(400);
+  check(hiddenTitles().length === 0, 'both off shows everything again');
+  dom.window.close();
+}
+
 (async () => {
   await testClassifier();
   await testSuggestions();
@@ -666,6 +709,7 @@ async function testHideWatched() {
   await testFeed();
   await testHeaderPosition();
   await testHideWatched();
+  await testHideLiveAndUpcoming();
   await testImport();
   await testSettingsPage();
   await testPortugueseLocale();

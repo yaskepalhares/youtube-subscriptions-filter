@@ -181,6 +181,44 @@
     return best;
   }
 
+  // Live and scheduled videos. YouTube marks them with a badge on the
+  // thumbnail; the attributes and class names are checked first because they
+  // do not depend on the language, and the badge text is a fallback.
+  const LIVE_SELECTORS = [
+    '[overlay-style="LIVE"]',
+    '.badge-style-type-live-now',
+    '.badge-style-type-live-now-alternate',
+    '[class*="thumbnail-live"]',
+    '[class*="live-now"]',
+    '[class*="LiveNow"]'
+  ].join(', ');
+  const UPCOMING_SELECTORS = [
+    '[overlay-style="UPCOMING"]',
+    '[class*="upcoming"]',
+    '[class*="Upcoming"]',
+    '[class*="UPCOMING"]'
+  ].join(', ');
+  const BADGE_SELECTORS = 'badge-shape, [class*="badge"], ytd-thumbnail-overlay-time-status-renderer';
+  const LIVE_TEXT = /^(live|live now|ao vivo|en vivo|en directo|en direct|in diretta|live jetzt)$/i;
+  const UPCOMING_TEXT = /^(upcoming|em breve|pr[oó]ximamente|bient[oô]t|demn[aä]chst|in arrivo|premiere|estreia|estreno)$/i;
+
+  function badgeTexts(card) {
+    return [...card.querySelectorAll(BADGE_SELECTORS)]
+      .map((b) => (b.textContent || '').replace(/\s+/g, ' ').trim())
+      .filter((text) => text && text.length <= 20);
+  }
+
+  function isUpcoming(card) {
+    if (card.querySelector(UPCOMING_SELECTORS)) return true;
+    return badgeTexts(card).some((text) => UPCOMING_TEXT.test(text));
+  }
+
+  function isLive(card) {
+    if (isUpcoming(card)) return false;
+    if (card.querySelector(LIVE_SELECTORS)) return true;
+    return badgeTexts(card).some((text) => LIVE_TEXT.test(text));
+  }
+
   function isWatched(card) {
     const threshold = Number(state.settings.watchedThreshold) || 90;
     return watchedPercent(card) >= threshold;
@@ -216,6 +254,12 @@
       // Watched videos leave the feed (and the counts) while the switch is on.
       if (hideWatched && isWatched(card)) {
         watchedHidden++;
+        if (!card.hasAttribute(HIDDEN_ATTR)) card.setAttribute(HIDDEN_ATTR, '');
+        continue;
+      }
+      // Live and scheduled videos leave the feed (and the counts) when the
+      // matching option is on in the settings.
+      if ((state.settings.hideLive && isLive(card)) || (state.settings.hideUpcoming && isUpcoming(card))) {
         if (!card.hasAttribute(HIDDEN_ATTR)) card.setAttribute(HIDDEN_ATTR, '');
         continue;
       }

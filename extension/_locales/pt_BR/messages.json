@@ -257,6 +257,12 @@
   "optShowUncategorized": {
     "message": "Mostrar a pílula “Sem categoria”"
   },
+  "optHideLive": {
+    "message": "Ocultar lives que estão ao vivo agora"
+  },
+  "optHideUpcoming": {
+    "message": "Ocultar lives programadas e estreias"
+  },
   "optWatchedThreshold": {
     "message": "Um vídeo conta como assistido a partir de"
   },

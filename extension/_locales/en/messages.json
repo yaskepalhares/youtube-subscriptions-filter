@@ -257,6 +257,12 @@
   "optShowUncategorized": {
     "message": "Show the “Uncategorized” pill"
   },
+  "optHideLive": {
+    "message": "Hide streams that are live right now"
+  },
+  "optHideUpcoming": {
+    "message": "Hide scheduled streams and premieres"
+  },
   "optWatchedThreshold": {
     "message": "A video counts as watched from"
   },

@@ -98,6 +98,8 @@ MESSAGES = {
     'optOptionsTitle': ('Options', 'Opções'),
     'optHideShorts': ('Hide the Shorts shelf while a filter is on', 'Esconder a prateleira de Shorts quando um filtro estiver ativo'),
     'optShowUncategorized': ('Show the “Uncategorized” pill', 'Mostrar a pílula “Sem categoria”'),
+    'optHideLive': ('Hide streams that are live right now', 'Ocultar lives que estão ao vivo agora'),
+    'optHideUpcoming': ('Hide scheduled streams and premieres', 'Ocultar lives programadas e estreias'),
     'optWatchedThreshold': ('A video counts as watched from', 'Um vídeo conta como assistido a partir de'),
     'optWatchedHelp': ("Uses the red progress bar YouTube shows under the thumbnails. Turn hiding on and off with the “Hide watched” switch in the pill bar. Videos don't get a progress bar if your YouTube watch history is paused.",
                        'Usa a barra vermelha de progresso que o YouTube mostra embaixo das miniaturas. Ligue e desligue com o botão “Ocultar assistidos” na barra de pílulas. Vídeos não ganham barra de progresso se o histórico de exibição do YouTube estiver pausado.'),

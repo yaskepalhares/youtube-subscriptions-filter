@@ -495,12 +495,16 @@
   function drawOptions() {
     $('opt-hide-shorts').checked = !!state.settings.hideShorts;
     $('opt-show-uncategorized').checked = !!state.settings.showUncategorized;
+    $('opt-hide-live').checked = !!state.settings.hideLive;
+    $('opt-hide-upcoming').checked = !!state.settings.hideUpcoming;
     $('opt-watched-threshold').value = String(Number(state.settings.watchedThreshold) || 90);
   }
 
   async function saveOptions() {
     state.settings.hideShorts = $('opt-hide-shorts').checked;
     state.settings.showUncategorized = $('opt-show-uncategorized').checked;
+    state.settings.hideLive = $('opt-hide-live').checked;
+    state.settings.hideUpcoming = $('opt-hide-upcoming').checked;
     const threshold = Math.round(Number($('opt-watched-threshold').value));
     if (threshold >= 1 && threshold <= 100) state.settings.watchedThreshold = threshold;
     await Y.save({ settings: state.settings });
@@ -591,6 +595,8 @@
     $('channel-list').addEventListener('click', onChannelListClick);
     $('opt-hide-shorts').addEventListener('change', saveOptions);
     $('opt-show-uncategorized').addEventListener('change', saveOptions);
+    $('opt-hide-live').addEventListener('change', saveOptions);
+    $('opt-hide-upcoming').addEventListener('change', saveOptions);
     $('opt-watched-threshold').addEventListener('change', saveOptions);
     $('btn-export').addEventListener('click', exportBackup);
     $('btn-restore-backup').addEventListener('click', () => $('file-json').click());
