@@ -420,3 +420,89 @@ button.discreto {
     grid-column: 2;
   }
 }
+
+/* Sugestões de temáticas */
+.sugestoes {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px dashed var(--borda);
+  border-radius: 12px;
+}
+
+.sugestoes h3 {
+  margin: 0 0 4px;
+}
+
+.lista-sugestoes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sugestao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.sugestao label {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.sugestao input {
+  align-self: center;
+}
+
+.sugestao .nome-sugestao {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sugestao .detalhe {
+  overflow: hidden;
+  color: var(--texto-2);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sugestao .ignorar {
+  height: 26px;
+  padding: 0 8px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--texto-2);
+  font-size: 13px;
+}
+
+.palavras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.palavra {
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--chip-texto);
+  font-size: 13px;
+}
+
+.palavra span {
+  margin-left: 6px;
+  opacity: 0.6;
+}
+
+.categoria .youtube {
+  color: var(--texto-2);
+  font-size: 12px;
+}

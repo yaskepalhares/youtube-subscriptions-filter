@@ -12,55 +12,20 @@
   // Valores padrão
   // ---------------------------------------------------------------------------
 
-  // Palavras terminadas em * casam por prefixo ("invest*" casa "investimentos").
-  // Sem *, a palavra precisa aparecer inteira. Acentos e maiúsculas são ignorados.
-  const CATEGORIAS_PADRAO = [
-    {
-      id: 'tecnologia',
-      nome: 'Tecnologia',
-      palavras: [
-        'tecnologia', 'tech', 'tecno*', 'gadget*', 'smartphone*', 'celular*', 'iphone', 'ipad',
-        'android', 'apple', 'samsung', 'xiaomi', 'unboxing', 'hardware', 'software',
-        'computador*', 'notebook*', 'pc', 'setup', 'linux', 'windows', 'macos', 'macbook',
-        'programacao', 'programador*', 'codigo', 'coding', 'developer', 'dev', 'javascript',
-        'python', 'inteligencia artificial', 'chatgpt', 'processador*', 'placa de video',
-        'gpu', 'nvidia', 'eletronic*', 'informatica', 'startup*'
-      ]
-    },
-    {
-      id: 'runescape',
-      nome: 'RuneScape',
-      palavras: [
-        'runescape', 'rune*', 'osrs', 'rs3', 'old school', 'oldschool', 'gielinor', 'ironman',
-        'hcim', 'uim', 'gim', 'pvm', 'skilling', 'zulrah', 'jagex', 'deadman', 'gnome child'
-      ]
-    },
-    {
-      id: 'investimentos',
-      nome: 'Investimentos',
-      palavras: [
-        'invest*', 'acoes', 'bolsa de valores', 'bolsa', 'b3', 'dividend*', 'fii', 'fiis',
-        'fundos imobiliarios', 'renda fixa', 'renda variavel', 'renda passiva', 'tesouro direto',
-        'financ*', 'dinheiro', 'patrimonio', 'aposentadoria', 'economi*', 'mercado financeiro',
-        'trader', 'trading', 'day trade', 'stocks', 'etf', 'etfs', 'cripto*', 'bitcoin',
-        'valuation', 'educacao financeira', 'riqueza'
-      ]
-    },
-    {
-      id: 'politica',
-      nome: 'Política',
-      palavras: [
-        'politic*', 'eleic*', 'eleitora*', 'governo', 'congresso', 'senado', 'camara dos deputados',
-        'deputad*', 'senador*', 'presidente', 'stf', 'democracia', 'esquerda', 'direita',
-        'jornalismo', 'jornalista', 'jornal', 'noticia*', 'news', 'geopolitic*',
-        'analise politica', 'brasilia', 'planalto'
-      ]
-    }
-  ];
+  const { CATALOGO, CATEGORIAS_YOUTUBE } = global.YTCatCatalogo;
+  const IDS_PADRAO = ['tecnologia', 'runescape', 'investimentos', 'politica'];
+
+  function temaDoCatalogo(id) {
+    const t = CATALOGO.find((c) => c.id === id);
+    return t ? JSON.parse(JSON.stringify(t)) : null;
+  }
+
+  const CATEGORIAS_PADRAO = IDS_PADRAO.map(temaDoCatalogo);
 
   const CONFIG_PADRAO = {
     ocultarShorts: true,      // esconde a prateleira de Shorts quando há filtro ativo
-    mostrarSemCategoria: true // mostra a pílula "Sem categoria"
+    mostrarSemCategoria: true, // mostra a pílula "Sem categoria"
+    sugestoesIgnoradas: []     // temáticas do catálogo que o usuário dispensou
   };
 
   const CHAVES = ['categorias', 'canais', 'config', 'filtroAtivo', 'ultimaImportacao'];
@@ -175,19 +140,71 @@
     };
   }
 
-  function compilarCategorias(categorias) {
-    return (categorias || []).map((cat) => ({
-      id: cat.id,
-      regras: (cat.palavras || []).map(compilarPalavra).filter(Boolean)
-    }));
+  // ---------------------------------------------------------------------------
+  // Categorias oficiais do YouTube
+  // ---------------------------------------------------------------------------
+
+  const APELIDOS_YOUTUBE = new Map();
+  for (const [oficial, apelidos] of Object.entries(CATEGORIAS_YOUTUBE)) {
+    APELIDOS_YOUTUBE.set(normalizar(oficial), oficial);
+    for (const a of apelidos) APELIDOS_YOUTUBE.set(normalizar(a), oficial);
   }
 
-  // Pontuação: palavra no nome ou no @handle vale 3; na descrição vale 1.
-  // O canal entra em todas as temáticas com pontuação >= metade da maior.
+  function categoriaYoutubeCanonica(nome) {
+    const original = String(nome || '').trim();
+    if (!original) return null;
+    return APELIDOS_YOUTUBE.get(normalizar(original)) || original;
+  }
+
+  // Categoria mais frequente entre os vídeos recentes lidos do canal.
+  function categoriaPrincipal(canal) {
+    const lista = (canal.yt && canal.yt.categorias) || [];
+    const n = {};
+    let melhor = null;
+    for (const c of lista) {
+      if (!c) continue;
+      n[c] = (n[c] || 0) + 1;
+      if (!melhor || n[c] > n[melhor]) melhor = c;
+    }
+    return melhor;
+  }
+
+  // Temáticas salvas antes do catálogo não têm as categorias do YouTube:
+  // usamos as do catálogo com o mesmo id.
+  function youtubeDaTematica(cat) {
+    if (cat.youtube !== undefined || cat.youtubeFraco !== undefined) {
+      return { forte: cat.youtube || [], fraco: cat.youtubeFraco || [] };
+    }
+    const t = CATALOGO.find((c) => c.id === cat.id) || {};
+    return { forte: t.youtube || [], fraco: t.youtubeFraco || [] };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Pontuação
+  // ---------------------------------------------------------------------------
+
+  const PONTO_MINIMO = 2;
+
+  function compilarCategorias(categorias) {
+    return (categorias || []).map((cat) => {
+      const yt = youtubeDaTematica(cat);
+      return {
+        id: cat.id,
+        regras: (cat.palavras || []).map(compilarPalavra).filter(Boolean),
+        youtube: yt.forte,
+        youtubeFraco: yt.fraco
+      };
+    });
+  }
+
+  // Palavra no nome ou no @ vale 3; na descrição ou nas tags dos vídeos, 1.
+  // A categoria oficial do YouTube (a mais comum nos vídeos recentes) vale 3.
   function pontuarCanal(canal, compiladas) {
     const nome = normalizar(canal.nome);
     const handle = normalizar(canal.handle || '').replace(/^@/, '').replace(/[^a-z0-9]/g, '');
     const descricao = normalizar(canal.descricao);
+    const tags = normalizar(((canal.yt && canal.yt.tags) || []).join(' | '));
+    const principal = categoriaPrincipal(canal);
     const pontos = {};
     for (const cat of compiladas) {
       let soma = 0;
@@ -196,17 +213,88 @@
           (regra.compacta.length >= 4 && handle.includes(regra.compacta));
         if (noNome) soma += 3;
         if (descricao && regra.re.test(descricao)) soma += 1;
+        if (tags && regra.re.test(tags)) soma += 1;
       }
+      if (principal && cat.youtube.includes(principal)) soma += 3;
       if (soma > 0) pontos[cat.id] = soma;
     }
     return pontos;
   }
 
+  // O canal entra nas temáticas com pelo menos 2 pontos e pelo menos metade da
+  // maior pontuação. Se nada encaixar, vale a categoria ampla do YouTube
+  // (ex.: "Entretenimento"), quando alguma temática a usa.
   function classificarCanal(canal, compiladas) {
     const pontos = pontuarCanal(canal, compiladas);
     const maior = Math.max(0, ...Object.values(pontos));
-    if (maior === 0) return [];
-    return Object.keys(pontos).filter((id) => pontos[id] >= maior / 2);
+    if (maior >= PONTO_MINIMO) {
+      const corte = Math.max(PONTO_MINIMO, maior / 2);
+      return Object.keys(pontos).filter((id) => pontos[id] >= corte);
+    }
+    const principal = categoriaPrincipal(canal);
+    if (principal) {
+      return compiladas.filter((c) => c.youtubeFraco.includes(principal)).map((c) => c.id);
+    }
+    return [];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Sugestões
+  // ---------------------------------------------------------------------------
+
+  // Temáticas do catálogo que ainda não estão em uso e encaixariam pelo menos
+  // dois canais, da que pega mais canais para a que pega menos.
+  function sugerirTematicas(canais, categorias, ignoradas) {
+    const atuais = new Set((categorias || []).map((c) => c.id));
+    const fora = new Set(ignoradas || []);
+    const candidatas = CATALOGO.filter((c) => !atuais.has(c.id) && !fora.has(c.id));
+    if (!candidatas.length) return [];
+    const compiladas = compilarCategorias([...(categorias || []), ...candidatas]);
+    const achados = new Map(candidatas.map((c) => [c.id, []]));
+    for (const canal of Object.values(canais || {})) {
+      for (const id of classificarCanal(canal, compiladas)) {
+        if (achados.has(id)) achados.get(id).push(canal.nome || canal.handle || '');
+      }
+    }
+    return candidatas
+      .map((c) => ({ id: c.id, nome: c.nome, total: achados.get(c.id).length, exemplos: achados.get(c.id).slice(0, 3) }))
+      .filter((s) => s.total >= 2)
+      .sort((a, b) => b.total - a.total);
+  }
+
+  const PALAVRAS_VAZIAS = new Set((
+    'para como mais sobre todos todas toda todo canal canais videos video aqui este esta esse essa ' +
+    'isso isto voce voces nosso nossa nossos nossas seus suas pelo pela pelos pelas quem quando onde ' +
+    'porque entao tambem muito muita muitos muitas sempre cada novo novos nova novas semana segunda ' +
+    'terca quarta quinta sexta sabado domingo dias inscreva inscrevase inscreve inscricao inscritos ' +
+    'contato email gmail hotmail instagram twitter tiktok facebook youtube twitch discord http https ' +
+    'www link links oficial official channel the and with your this that from about more have will ' +
+    'just what comercial parcerias parceria business inquiries contact subscribe follow every week ' +
+    'conteudo conteudos mundo vida melhor melhores brasil brasileiro brasileira sejam bem vindos ' +
+    'ainda agora depois antes entre desde mesmo outros outras coisa coisas fazer feito ser sua seu ' +
+    'tudo nada ate pra pro vamos video'
+  ).split(/\s+/));
+
+  // Palavras que se repetem entre os canais ainda sem categoria (contadas uma
+  // vez por canal), para o usuário criar temáticas novas a partir delas.
+  function palavrasFrequentes(canais, categorias, limite = 12) {
+    const usadas = new Set();
+    for (const cat of categorias || []) {
+      for (const p of cat.palavras || []) usadas.add(normalizar(p).replace(/\*$/, '').trim());
+    }
+    const contagem = new Map();
+    for (const canal of Object.values(canais || {})) {
+      if ((canal.categorias || []).length) continue;
+      const texto = normalizar([canal.nome, canal.descricao, ...((canal.yt && canal.yt.tags) || [])].join(' '));
+      const termos = new Set(texto.split(/[^a-z0-9]+/).filter((t) =>
+        t.length >= 4 && !/^\d+$/.test(t) && !PALAVRAS_VAZIAS.has(t) && !usadas.has(t)));
+      for (const t of termos) contagem.set(t, (contagem.get(t) || 0) + 1);
+    }
+    return [...contagem]
+      .filter(([, n]) => n >= 3)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, limite)
+      .map(([palavra, total]) => ({ palavra, total }));
   }
 
   // Reclassifica os canais. Os ajustados à mão são preservados, a não ser que
@@ -346,6 +434,13 @@
   global.YTCat = {
     api,
     CATEGORIAS_PADRAO,
+    CATALOGO,
+    temaDoCatalogo,
+    categoriaYoutubeCanonica,
+    categoriaPrincipal,
+    youtubeDaTematica,
+    sugerirTematicas,
+    palavrasFrequentes,
     CONFIG_PADRAO,
     normalizar,
     normalizarNome,

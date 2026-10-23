@@ -91,6 +91,12 @@
       texto += ` Última importação: ${formatarData(u.quando)}` +
         (typeof u.lidos === 'number' ? ` (${u.lidos} canais lidos)` : '') + '.';
     }
+    const comYoutube = Object.values(estado.canais).filter((c) => c.yt && c.yt.quando).length;
+    if (total > 0) {
+      texto += comYoutube < total
+        ? ` Categoria do YouTube lida para ${comYoutube} de ${total} canais; importe do YouTube para completar.`
+        : ' Todos os canais têm a categoria do YouTube.';
+    }
     $('status-canais').textContent = texto;
     $('boas-vindas').hidden = total > 0;
   }
@@ -222,9 +228,12 @@
         desenharTudo();
       });
 
+      const yt = Y.youtubeDaTematica(cat);
+      const textoYt = [...yt.forte, ...yt.fraco.map((c) => c + ' (só se nada mais encaixar)')].join(', ');
       return el('div', { classe: 'categoria', 'data-id': cat.id }, [
         el('div', { classe: 'linha' }, [nome]),
         palavras,
+        textoYt ? el('div', { classe: 'youtube', texto: 'Categoria do YouTube: ' + textoYt }) : null,
         el('div', { classe: 'rodape' }, [
           el('span', { classe: 'contagem', texto: `${n[cat.id] || 0} canais` }),
           remover
@@ -274,15 +283,89 @@
     const incluirManuais = $('chk-incluir-manuais').checked;
     if (incluirManuais && !confirm('Isso desfaz todos os ajustes manuais. Continuar?')) return;
     clearTimeout(gravacaoCategorias);
+    const novas = sugestoesAtuais.filter((s) => marcadas.has(s.id));
+    for (const s of novas) {
+      const tema = Y.temaDoCatalogo(s.id);
+      if (tema && !estado.categorias.some((c) => c.id === tema.id)) estado.categorias.push(tema);
+    }
     const alterados = Y.classificarTodos(estado.canais, estado.categorias, incluirManuais);
     await Y.salvar({ categorias: estado.categorias, canais: estado.canais });
     const semCat = Object.values(estado.canais).filter((c) => !(c.categorias || []).length).length;
     mensagem(
       'msg-classificacao',
+      (novas.length ? `Criei ${novas.map((s) => s.nome).join(', ')}. ` : '') +
       `${alterados} canais classificados` +
       (incluirManuais ? '' : ` (${total - alterados} ajustados à mão foram mantidos)`) +
       `. ${semCat} ficaram sem categoria.`
     );
+    desenharTudo();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Sugestões de temáticas
+  // ---------------------------------------------------------------------------
+
+  let sugestoesAtuais = [];
+  const marcadas = new Set();
+  const jaSugeridas = new Set();
+
+  function desenharSugestoes() {
+    sugestoesAtuais = Y.sugerirTematicas(estado.canais, estado.categorias, estado.config.sugestoesIgnoradas);
+    for (const s of sugestoesAtuais) {
+      // Vem marcada na primeira vez que aparece, se pegar 3 canais ou mais.
+      if (!jaSugeridas.has(s.id)) {
+        jaSugeridas.add(s.id);
+        if (s.total >= 3) marcadas.add(s.id);
+      }
+    }
+    const palavras = Y.palavrasFrequentes(estado.canais, estado.categorias);
+
+    $('lista-sugestoes').replaceChildren(...sugestoesAtuais.map((s) => {
+      const caixa = el('input', { type: 'checkbox', checked: marcadas.has(s.id), 'data-id': s.id });
+      caixa.addEventListener('change', () => {
+        if (caixa.checked) marcadas.add(s.id); else marcadas.delete(s.id);
+      });
+      const ignorar = el('button', { type: 'button', classe: 'ignorar', texto: 'Ignorar', title: 'Não sugerir mais esta temática' });
+      ignorar.addEventListener('click', async () => {
+        marcadas.delete(s.id);
+        estado.config.sugestoesIgnoradas = [...new Set([...(estado.config.sugestoesIgnoradas || []), s.id])];
+        await Y.salvar({ config: estado.config });
+        desenharSugestoes();
+      });
+      return el('div', { classe: 'sugestao' }, [
+        el('label', {}, [
+          caixa,
+          el('span', { classe: 'nome-sugestao', texto: s.nome }),
+          el('span', { classe: 'detalhe', texto: `${s.total} canais · ${s.exemplos.join(', ')}${s.total > s.exemplos.length ? '…' : ''}` })
+        ]),
+        ignorar
+      ]);
+    }));
+
+    $('palavras-frequentes').replaceChildren(...palavras.map((p) => {
+      const b = el('button', { type: 'button', classe: 'palavra', title: `${p.total} canais sem categoria têm esta palavra` }, [
+        document.createTextNode(p.palavra),
+        el('span', { texto: String(p.total) })
+      ]);
+      b.addEventListener('click', () => criarDaPalavra(p.palavra));
+      return b;
+    }));
+    $('bloco-palavras').hidden = palavras.length === 0;
+    $('sugestoes').hidden = sugestoesAtuais.length === 0 && palavras.length === 0;
+  }
+
+  async function criarDaPalavra(palavra) {
+    const sugestao = palavra.charAt(0).toUpperCase() + palavra.slice(1);
+    const nome = (prompt(`Nome da nova temática (vai procurar por “${palavra}”):`, sugestao) || '').trim();
+    if (!nome) return;
+    let id = Y.slug(nome);
+    const usados = new Set(estado.categorias.map((c) => c.id));
+    for (let i = 2; usados.has(id); i++) id = Y.slug(nome) + '-' + i;
+    estado.categorias.push({ id, nome, palavras: [palavra] });
+    clearTimeout(gravacaoCategorias);
+    const alterados = Y.classificarTodos(estado.canais, estado.categorias, false);
+    await Y.salvar({ categorias: estado.categorias, canais: estado.canais });
+    mensagem('msg-classificacao', `Criei ${nome} e reclassifiquei ${alterados} canais.`);
     desenharTudo();
   }
 
@@ -461,6 +544,7 @@
   function desenharTudo() {
     desenharStatus();
     desenharCategorias();
+    desenharSugestoes();
     desenharFiltroLista();
     desenharCanais();
     desenharOpcoes();
@@ -519,6 +603,7 @@
       if (!editandoCategorias) estado.categorias = novo.categorias;
       desenharStatus();
       if (editandoCategorias) atualizarContagensCategorias(); else desenharCategorias();
+      desenharSugestoes();
       desenharFiltroLista();
       desenharCanais();
       if (mudancas.ultimaImportacao && novo.ultimaImportacao && novo.ultimaImportacao.origem === 'youtube') {

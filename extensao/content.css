@@ -3,18 +3,51 @@
   display: none !important;
 }
 
-/* Barra de pílulas no topo do feed de inscrições */
+/*
+ * Cores próprias, que seguem o modo claro/escuro do sistema.
+ * (As variáveis de cor do YouTube não estão disponíveis para a extensão.)
+ */
+#ytcat-barra,
+#ytcat-importador {
+  --ytcat-fundo: #ffffff;
+  --ytcat-pilula: #f2f2f2;
+  --ytcat-pilula-hover: #e5e5e5;
+  --ytcat-texto: #0f0f0f;
+  --ytcat-texto-2: #606060;
+  --ytcat-ativa: #0f0f0f;
+  --ytcat-ativa-texto: #ffffff;
+  --ytcat-painel: #ffffff;
+  --ytcat-sombra: rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  #ytcat-barra,
+  #ytcat-importador {
+    --ytcat-fundo: #0f0f0f;
+    --ytcat-pilula: #272727;
+    --ytcat-pilula-hover: #3a3a3a;
+    --ytcat-texto: #f1f1f1;
+    --ytcat-texto-2: #aaaaaa;
+    --ytcat-ativa: #f1f1f1;
+    --ytcat-ativa-texto: #0f0f0f;
+    --ytcat-painel: #212121;
+    --ytcat-sombra: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Barra de pílulas: entre o cabeçalho "Mais recentes" e os vídeos */
 .ytcat-barra {
   position: sticky;
-  top: var(--ytd-masthead-height, 56px);
+  top: var(--ytcat-topo, 56px);
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   box-sizing: border-box;
   width: 100%;
-  padding: 12px 24px;
-  background: var(--yt-spec-base-background, #fff);
+  padding: 8px 0 16px;
+  background: var(--ytcat-fundo);
+  color: var(--ytcat-texto);
   font-family: "Roboto", "Arial", sans-serif;
 }
 
@@ -22,7 +55,7 @@
   display: flex;
   flex: 1 1 auto;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -30,37 +63,43 @@
 .ytcat-aviso {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 12px;
+  gap: 8px;
+  height: 34px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 8px;
-  background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
-  color: var(--yt-spec-text-primary, #0f0f0f);
+  border-radius: 999px;
+  background: var(--ytcat-pilula);
+  color: var(--ytcat-texto);
   font: 500 14px/20px "Roboto", "Arial", sans-serif;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .ytcat-pilula:hover {
-  background: var(--yt-spec-button-chip-background-hover, rgba(0, 0, 0, 0.1));
+  background: var(--ytcat-pilula-hover);
+}
+
+.ytcat-pilula:focus-visible,
+.ytcat-engrenagem:focus-visible {
+  outline: 2px solid var(--ytcat-texto);
+  outline-offset: 2px;
 }
 
 .ytcat-pilula.ytcat-ativa {
-  background: var(--yt-spec-text-primary, #0f0f0f);
-  color: var(--yt-spec-text-primary-inverse, #fff);
+  background: var(--ytcat-ativa);
+  color: var(--ytcat-ativa-texto);
 }
 
 .ytcat-n {
   font-weight: 400;
   font-size: 12px;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 .ytcat-aviso {
   background: transparent;
-  color: var(--yt-spec-call-to-action, #065fd4);
+  color: var(--ytcat-texto-2);
   text-decoration: underline;
 }
 
@@ -68,29 +107,37 @@
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .ytcat-status {
-  color: var(--yt-spec-text-secondary, #606060);
+  color: var(--ytcat-texto-2);
   font-size: 12px;
   white-space: nowrap;
 }
 
 .ytcat-engrenagem {
-  width: 32px;
-  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: var(--yt-spec-text-primary, #0f0f0f);
-  font-size: 18px;
-  line-height: 32px;
+  color: var(--ytcat-texto);
   cursor: pointer;
 }
 
 .ytcat-engrenagem:hover {
-  background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
+  background: var(--ytcat-pilula);
+}
+
+.ytcat-engrenagem svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
 }
 
 /* Painel de importação em /feed/channels */
@@ -100,13 +147,13 @@
   bottom: 24px;
   z-index: 3000;
   box-sizing: border-box;
-  width: 320px;
+  width: 340px;
   max-width: calc(100vw - 48px);
-  padding: 16px;
-  border-radius: 12px;
-  background: var(--yt-spec-menu-background, #fff);
-  color: var(--yt-spec-text-primary, #0f0f0f);
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.25);
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--ytcat-painel);
+  color: var(--ytcat-texto);
+  box-shadow: 0 6px 32px var(--ytcat-sombra);
   font: 400 14px/20px "Roboto", "Arial", sans-serif;
 }
 
@@ -117,7 +164,23 @@
 }
 
 .ytcat-imp-status {
-  color: var(--yt-spec-text-secondary, #606060);
+  color: var(--ytcat-texto-2);
+}
+
+.ytcat-imp-progresso {
+  height: 4px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--ytcat-pilula);
+}
+
+.ytcat-imp-progresso > div {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: var(--ytcat-texto);
+  transition: width 0.3s ease;
 }
 
 .ytcat-imp-acoes {
@@ -135,9 +198,9 @@
   height: 36px;
   padding: 0 16px;
   border: 0;
-  border-radius: 18px;
-  background: var(--yt-spec-text-primary, #0f0f0f);
-  color: var(--yt-spec-text-primary-inverse, #fff);
+  border-radius: 999px;
+  background: var(--ytcat-ativa);
+  color: var(--ytcat-ativa-texto);
   font: 500 14px/36px "Roboto", "Arial", sans-serif;
   cursor: pointer;
 }

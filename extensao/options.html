@@ -46,7 +46,8 @@
       </div>
       <p class="ajuda">
         <strong>Importar do YouTube</strong> abre a página com a lista dos seus canais numa nova aba. A extensão
-        rola a lista sozinha e lê nome, @ e descrição de cada canal. Deixe a aba aberta até aparecer “Pronto”.
+        rola a lista sozinha, lê nome, @ e descrição de cada canal e depois a categoria oficial do YouTube
+        dos vídeos recentes (cerca de um minuto para 150 canais). Deixe a aba aberta até aparecer “Pronto”.
         Importar de novo atualiza a lista sem desfazer seus ajustes manuais.
       </p>
       <p id="msg-importacao" class="msg" hidden></p>
@@ -55,14 +56,23 @@
     <section class="bloco">
       <h2><span class="num">2</span> Temáticas</h2>
       <p class="ajuda">
-        Cada temática tem palavras-chave, separadas por vírgula, procuradas no nome, no @ e na descrição dos canais.
-        Acentos e maiúsculas não importam. Termine com <code>*</code> para aceitar continuações:
+        Cada temática tem palavras-chave, separadas por vírgula, procuradas no nome, no @, na descrição e nas
+        tags dos vídeos dos canais, e pode usar a categoria oficial do YouTube. Acentos e maiúsculas não importam. Termine com <code>*</code> para aceitar continuações:
         <code>invest*</code> casa “investimentos” e “investidor”.
       </p>
       <div id="lista-categorias" class="categorias"></div>
       <div class="acoes">
         <button id="btn-nova-categoria" type="button">+ Nova temática</button>
         <button id="btn-restaurar" type="button" class="discreto">Restaurar temáticas padrão</button>
+      </div>
+      <div id="sugestoes" class="sugestoes" hidden>
+        <h3>Sugestões a partir dos seus canais</h3>
+        <p class="ajuda">As temáticas marcadas são criadas quando você clicar em <em>Classificar automaticamente</em>.</p>
+        <div id="lista-sugestoes" class="lista-sugestoes"></div>
+        <div id="bloco-palavras" hidden>
+          <p class="ajuda">Palavras que se repetem entre os canais sem categoria. Clique numa para criar uma temática com ela:</p>
+          <div id="palavras-frequentes" class="palavras"></div>
+        </div>
       </div>
       <div class="classificar">
         <button id="btn-classificar" class="primario" type="button">Classificar automaticamente</button>
@@ -108,6 +118,7 @@
     </section>
   </main>
 
+  <script src="catalogo.js"></script>
   <script src="shared.js"></script>
   <script src="options.js"></script>
 </body>

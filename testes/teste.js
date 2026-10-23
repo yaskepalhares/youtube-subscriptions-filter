@@ -43,8 +43,47 @@ function fakeBrowser(inicial = {}) {
   };
 }
 
-function carregarNaJanela(dom, browser, arquivos) {
+// Simula as respostas do YouTube usadas para ler a categoria dos canais.
+// canais: { '@handle': { id, cats: [...], tags: [...] } }
+function youtubeFalso(canais) {
+  const pedidos = [];
+  const porId = {};
+  for (const [h, c] of Object.entries(canais)) porId[c.id] = { ...c, h };
+  const resposta = (corpo, status = 200) => ({
+    ok: status >= 200 && status < 300, status,
+    json: async () => corpo, text: async () => (typeof corpo === 'string' ? corpo : JSON.stringify(corpo))
+  });
+  const fetch = async (url, opcoes = {}) => {
+    pedidos.push(url);
+    const u = new URL(url, 'https://www.youtube.com');
+    const corpo = opcoes.body ? JSON.parse(opcoes.body) : {};
+    if (u.pathname === '/youtubei/v1/navigation/resolve_url') {
+      const caminho = decodeURI(new URL(corpo.url).pathname).slice(1);
+      if (caminho === 'canaltech-legado') return resposta({ endpoint: { browseEndpoint: { browseId: canais['@canaltech'].id } } });
+      if (caminho === '@canaltech') return resposta({ endpoint: { urlEndpoint: { url: 'https://www.youtube.com/canaltech-legado' } } });
+      const c = canais[caminho];
+      return resposta(c ? { endpoint: { browseEndpoint: { browseId: c.id } } } : {});
+    }
+    if (u.pathname === '/feeds/videos.xml') {
+      const c = porId[u.searchParams.get('channel_id')];
+      if (!c) return resposta('', 404);
+      const ids = c.cats.map((_, i) => (c.id.slice(2, 12) + i).padEnd(11, 'x'));
+      return resposta('<feed>' + ids.map((v) => `<entry><yt:videoId>${v}</yt:videoId></entry>`).join('') + '</feed>');
+    }
+    if (u.pathname === '/youtubei/v1/player') {
+      const v = corpo.videoId;
+      const c = Object.values(porId).find((x) => v.startsWith(x.id.slice(2, 12)));
+      const i = Number(v[10]);
+      return resposta({ microformat: { playerMicroformatRenderer: { category: c.cats[i] } }, videoDetails: { keywords: c.tags || [] } });
+    }
+    return resposta('', 404);
+  };
+  return { fetch, pedidos };
+}
+
+function carregarNaJanela(dom, browser, arquivos, fetchFalso) {
   const w = dom.window;
+  if (fetchFalso) w.fetch = fetchFalso;
   w.browser = browser;
   w.scrollTo = () => {};
   w.CSS = w.CSS || { escape: (s) => s };
@@ -55,12 +94,12 @@ function carregarNaJanela(dom, browser, arquivos) {
 async function testeClassificador() {
   console.log('\nClassificador');
   const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://www.youtube.com/', runScripts: 'outside-only' });
-  carregarNaJanela(dom, fakeBrowser(), ['shared.js']);
+  carregarNaJanela(dom, fakeBrowser(), ['catalogo.js', 'shared.js']);
   const Y = dom.window.YTCat;
   const comp = Y.compilarCategorias(Y.CATEGORIAS_PADRAO);
   const casos = [
     [{ nome: 'Canaltech', handle: '@canaltech', descricao: 'Notícias de tecnologia, reviews de celulares' }, ['tecnologia']],
-    [{ nome: 'Coisa de Nerd', handle: '@coisadenerd', descricao: 'Games e tecnologia' }, ['tecnologia']],
+    [{ nome: 'Coisa de Nerd', handle: '@coisadenerd', descricao: 'Games, tecnologia e reviews de gadgets' }, ['tecnologia']],
     [{ nome: 'Framed', handle: '@framedrs', descricao: 'Old School RuneScape content: ironman, PvM and more' }, ['runescape']],
     [{ nome: 'Me Poupe!', handle: '@mepoupe', descricao: 'Educação financeira para você investir melhor' }, ['investimentos']],
     [{ nome: 'Meteoro Brasil', handle: '@meteorobrasil', descricao: 'Análise política e cultural' }, ['politica']],
@@ -91,6 +130,45 @@ async function testeClassificador() {
 }
 
 // ---------------------------------------------------------------------------
+async function testeSugestoes() {
+  console.log('\nCategoria do YouTube e sugestões');
+  const dom = new JSDOM('<!doctype html><body></body>', { url: 'https://www.youtube.com/', runScripts: 'outside-only' });
+  carregarNaJanela(dom, fakeBrowser(), ['catalogo.js', 'shared.js']);
+  const Y = dom.window.YTCat;
+  const canal = (nome, cats, extra = {}) => ({ nome, handle: '@' + Y.slug(nome), descricao: '', categorias: [], yt: { categorias: cats, tags: [], quando: 1 }, ...extra });
+  const canais = {
+    a: canal('Coldplay', ['Music', 'Music', 'Music']),
+    b: canal('Anitta', ['Music', 'Music']),
+    c: canal('Tim Maia Oficial', ['Music']),
+    d: canal('Gaules', ['Gaming', 'Gaming']),
+    e: canal('Alanzoka', ['Gaming']),
+    f: canal('Casimiro', ['Entertainment', 'Entertainment']),
+    g: canal('Canal Aleatório', ['People & Blogs']),
+    h: canal('Ana Podcast', [], { descricao: 'podcast semanal sobre maternidade' }),
+    i: canal('Bia e Lu', [], { descricao: 'maternidade real' }),
+    j: canal('Mães Reais', [], { descricao: 'maternidade e família' })
+  };
+  const comp = Y.compilarCategorias(Y.CATEGORIAS_PADRAO);
+  confere(Y.classificarCanal(canais.a, comp).length === 0, 'sem temática de música, Coldplay fica sem categoria');
+  const sug = Y.sugerirTematicas(canais, Y.CATEGORIAS_PADRAO, []);
+  const porId = Object.fromEntries(sug.map((s) => [s.id, s]));
+  confere(porId.musica && porId.musica.total === 3, `sugere Música com 3 canais (${porId.musica && porId.musica.exemplos.join(', ')})`);
+  confere(porId.games && porId.games.total === 2, 'sugere Games com 2 canais');
+  confere(sug[0].id === 'musica', 'sugestões em ordem de tamanho');
+  confere(!porId.entretenimento, 'categoria ampla com 1 canal não vira sugestão');
+  confere(!Y.sugerirTematicas(canais, Y.CATEGORIAS_PADRAO, ['musica']).some((s) => s.id === 'musica'), 'sugestão ignorada não volta');
+  const comMusica = [...Y.CATEGORIAS_PADRAO, Y.temaDoCatalogo('musica')];
+  confere(Y.classificarCanal(canais.a, Y.compilarCategorias(comMusica)).join() === 'musica', 'com Música criada, Coldplay entra nela');
+  const comEnt = [...Y.CATEGORIAS_PADRAO, Y.temaDoCatalogo('entretenimento'), Y.temaDoCatalogo('musica')];
+  confere(Y.classificarCanal(canais.f, Y.compilarCategorias(comEnt)).join() === 'entretenimento', 'categoria ampla vale quando nada mais encaixa');
+  confere(Y.categoriaYoutubeCanonica('Ciência e tecnologia') === 'Science & Technology', 'nome da categoria em português é reconhecido');
+  const palavras = Y.palavrasFrequentes(canais, Y.CATEGORIAS_PADRAO);
+  confere(palavras[0] && palavras[0].palavra === 'maternidade' && palavras[0].total === 3, 'palavra frequente entre canais sem categoria: ' + JSON.stringify(palavras.slice(0, 3)));
+  confere(!palavras.some((p) => p.palavra === 'sobre'), 'palavras vazias ficam de fora');
+  dom.window.close();
+}
+
+// ---------------------------------------------------------------------------
 function cardLegado(handle, nome, titulo) {
   return `<ytd-rich-item-renderer><div id="content"><ytd-rich-grid-media>
     <a id="thumbnail" href="/watch?v=${titulo}"></a>
@@ -113,7 +191,7 @@ async function testeFeed() {
   const html = `<!doctype html><body><ytd-app>
     <ytd-browse page-subtype="home" hidden></ytd-browse>
     <ytd-browse page-subtype="subscriptions"><ytd-two-column-browse-results-renderer><div id="primary">
-      <ytd-rich-grid-renderer><div id="contents">
+      <ytd-rich-grid-renderer><div id="header"><h2>Mais recentes</h2></div><div id="contents">
         ${cardLegado('@canaltech', 'Canaltech', 'v1')}
         ${cardLockup('/@framedrs', 'Framed', 'v2')}
         ${cardLockup('/channel/UCcccccccccccccccccccccc', 'Me Poupe!', 'v3')}
@@ -137,12 +215,15 @@ async function testeFeed() {
       'h:@meteorobrasil': { handle: '@meteorobrasil', nome: 'Meteoro Brasil', categorias: ['politica', 'tecnologia'] }
     }
   });
-  carregarNaJanela(dom, browser, ['shared.js', 'content.js']);
+  carregarNaJanela(dom, browser, ['catalogo.js', 'shared.js', 'content.js']);
   await esperar(400);
   const d = dom.window.document;
   const barra = d.getElementById('ytcat-barra');
   confere(!!barra, 'barra inserida');
-  confere(barra && barra.nextElementSibling && barra.nextElementSibling.tagName === 'YTD-RICH-GRID-RENDERER', 'barra fica logo acima da grade');
+  confere(barra && barra.parentElement.tagName === 'YTD-RICH-GRID-RENDERER' &&
+    barra.previousElementSibling.id === 'header' && barra.nextElementSibling.id === 'contents',
+    'barra fica entre o cabeçalho "Mais recentes" e os vídeos');
+  confere(!!barra.querySelector('.ytcat-engrenagem svg'), 'botão de ajustes usa ícone SVG');
   const contagem = (id) => {
     const b = barra.querySelector(`[data-filtro="${id}"] .ytcat-n`);
     return b ? Number(b.textContent) : NaN;
@@ -201,21 +282,40 @@ async function testeImportacao() {
     ${canal('/@primorico', 'Primo Rico', '@primorico', 'Investimentos e finanças')}
     ${canal('/@meteorobrasil', 'Meteoro Brasil', '@meteorobrasil', 'Política, cultura e sociedade')}
     ${canal('/@receitas', 'Receitas da Vó', '@receitas', 'Bolos e pães')}
+    ${canal('/@coldplay', 'Coldplay', '@coldplay', '')}
+    ${canal('/@anitta', 'Anitta', '@anitta', 'Site oficial')}
   </div></ytd-browse></body>`;
   const dom = new JSDOM(html, { url: 'https://www.youtube.com/feed/channels', runScripts: 'outside-only' });
   const browser = fakeBrowser({ importacaoPendente: Date.now() });
-  carregarNaJanela(dom, browser, ['shared.js', 'content.js']);
+  const yt = youtubeFalso({
+    '@canaltech': { id: 'UCaaaaaaaaaaaaaaaaaaaaaa', cats: ['Science & Technology', 'Science & Technology', 'News & Politics'], tags: ['tecnologia'] },
+    '@framedrs': { id: 'UCbbbbbbbbbbbbbbbbbbbbbb', cats: ['Gaming', 'Gaming', 'Gaming'], tags: ['osrs'] },
+    '@primorico': { id: 'UCcccccccccccccccccccccc', cats: ['Education', 'Education', 'Education'], tags: [] },
+    '@meteorobrasil': { id: 'UCdddddddddddddddddddddd', cats: ['News & Politics', 'News & Politics', 'Entertainment'], tags: [] },
+    '@receitas': { id: 'UCeeeeeeeeeeeeeeeeeeeeee', cats: ['Howto & Style'], tags: ['receita', 'bolo'] },
+    '@coldplay': { id: 'UCffffffffffffffffffffff', cats: ['Music', 'Music', 'Music'], tags: [] },
+    '@anitta': { id: 'UCgggggggggggggggggggggg', cats: ['Music', 'Music'], tags: ['funk'] }
+  });
+  carregarNaJanela(dom, browser, ['catalogo.js', 'shared.js', 'content.js'], yt.fetch);
   await esperar(4500);
   const canais = browser._dados.canais || {};
   const nomes = Object.values(canais).map((c) => c.nome).sort();
-  confere(nomes.length === 5, `5 canais importados (${nomes.join(', ')})`);
+  confere(nomes.length === 7, `7 canais importados (${nomes.join(', ')})`);
   confere(canais['h:@framedrs'] && canais['h:@framedrs'].categorias.includes('runescape'), 'Framed classificado como RuneScape');
   confere(canais['h:@primorico'] && canais['h:@primorico'].categorias.includes('investimentos'), 'Primo Rico classificado como Investimentos');
   confere(canais['h:@receitas'] && canais['h:@receitas'].categorias.length === 0, 'canal fora das temáticas fica sem categoria');
   confere(canais['h:@canaltech'] && canais['h:@canaltech'].avatar.includes('yt3.ggpht.com'), 'avatar guardado');
   confere(!('importacaoPendente' in browser._dados), 'pedido de importação limpo');
   const status = dom.window.document.querySelector('.ytcat-imp-status');
-  confere(status && /Pronto: 5 canais/.test(status.textContent), 'painel mostra o resultado: ' + (status && status.textContent));
+  confere(status && /Pronto: 7 canais/.test(status.textContent), 'painel mostra o resultado: ' + (status && status.textContent));
+  confere(canais['h:@coldplay'].yt && canais['h:@coldplay'].yt.categorias.join() === 'Music,Music,Music', 'categoria do YouTube lida dos 3 vídeos recentes');
+  confere(canais['h:@canaltech'].yt.id === 'UCaaaaaaaaaaaaaaaaaaaaaa', 'redirecionamento do @ para o endereço antigo é seguido');
+  confere(canais['h:@meteorobrasil'].categorias.includes('politica'), 'Meteoro entra em Política pela categoria do YouTube');
+  confere(canais['h:@anitta'].yt.tags.includes('funk'), 'tags dos vídeos guardadas');
+  confere(/Categoria do YouTube lida para 7 de 7/.test(status.textContent), 'painel informa quantos canais tiveram a categoria lida');
+  confere(/temática\(s\) nova\(s\)/.test(status.textContent), 'painel avisa que há sugestões');
+  const pedidos = yt.pedidos.length;
+  confere(pedidos > 0 && yt.pedidos.every((u) => u.startsWith('https://www.youtube.com/')), `${pedidos} pedidos, todos para www.youtube.com`);
   dom.window.close();
 }
 
@@ -233,7 +333,7 @@ async function testeOpcoes() {
   });
   dom.window.confirm = () => true;
   dom.window.prompt = () => 'Culinária';
-  carregarNaJanela(dom, browser, ['shared.js', 'options.js']);
+  carregarNaJanela(dom, browser, ['catalogo.js', 'shared.js', 'options.js']);
   await esperar(200);
   const d = dom.window.document;
   confere(d.querySelectorAll('.categoria').length === 4, '4 temáticas padrão desenhadas');
@@ -293,7 +393,7 @@ async function testePermissao() {
     onAdded: { addListener: () => {} },
     onRemoved: { addListener: () => {} }
   };
-  carregarNaJanela(dom, browser, ['shared.js', 'options.js']);
+  carregarNaJanela(dom, browser, ['catalogo.js', 'shared.js', 'options.js']);
   await esperar(200);
   const d = dom.window.document;
   confere(!d.getElementById('permissao').hidden, 'aviso de acesso aparece quando falta permissão');
@@ -317,19 +417,58 @@ async function testePermissao() {
 
   // Sem a API de permissões, o aviso não aparece (não dá para saber o estado).
   const dom2 = new JSDOM(html, { url: 'safari-web-extension://x/options.html', runScripts: 'outside-only' });
-  carregarNaJanela(dom2, fakeBrowser(), ['shared.js', 'options.js']);
+  carregarNaJanela(dom2, fakeBrowser(), ['catalogo.js', 'shared.js', 'options.js']);
   await esperar(150);
   confere(dom2.window.document.getElementById('permissao').hidden, 'sem API de permissões o aviso fica escondido');
   dom.window.close();
   dom2.window.close();
 }
 
+// ---------------------------------------------------------------------------
+async function testeSugestoesNaPagina() {
+  console.log('\nSugestões na página de configurações');
+  const html = ler('options.html').replace(/<script[^>]*><\/script>/g, '');
+  const dom = new JSDOM(html, { url: 'safari-web-extension://x/options.html', runScripts: 'outside-only' });
+  const yt = (cats) => ({ categorias: cats, tags: [], quando: 1 });
+  const browser = fakeBrowser({
+    canais: {
+      'h:@coldplay': { handle: '@coldplay', nome: 'Coldplay', descricao: '', categorias: [], manual: false, yt: yt(['Music', 'Music']) },
+      'h:@anitta': { handle: '@anitta', nome: 'Anitta', descricao: '', categorias: [], manual: false, yt: yt(['Music']) },
+      'h:@timmaia': { handle: '@timmaia', nome: 'Tim Maia', descricao: '', categorias: [], manual: false, yt: yt(['Music']) },
+      'h:@gaules': { handle: '@gaules', nome: 'Gaules', descricao: '', categorias: [], manual: false, yt: yt(['Gaming']) },
+      'h:@alan': { handle: '@alan', nome: 'Alanzoka', descricao: '', categorias: [], manual: false, yt: yt(['Gaming']) }
+    }
+  });
+  dom.window.confirm = () => true;
+  carregarNaJanela(dom, browser, ['catalogo.js', 'shared.js', 'options.js']);
+  await esperar(200);
+  const d = dom.window.document;
+  confere(!d.getElementById('sugestoes').hidden, 'bloco de sugestões aparece');
+  const caixa = (id) => d.querySelector(`#lista-sugestoes input[data-id="${id}"]`);
+  confere(caixa('musica') && caixa('musica').checked, 'Música vem marcada (3 canais)');
+  confere(caixa('games') && !caixa('games').checked, 'Games vem desmarcada (2 canais)');
+  confere(/2 de 5|5 de 5|Todos os canais/.test(d.getElementById('status-canais').textContent), 'status mostra os dados do YouTube');
+  d.getElementById('btn-classificar').click();
+  await esperar(150);
+  const dados = browser._dados;
+  confere(dados.categorias.some((c) => c.id === 'musica') && !dados.categorias.some((c) => c.id === 'games'), 'classificar cria só as sugestões marcadas');
+  confere(dados.canais['h:@coldplay'].categorias.join() === 'musica', 'canais de música entram na temática nova');
+  confere(/Criei Música/.test(d.getElementById('msg-classificacao').textContent), 'mensagem cita a temática criada');
+  confere(!caixa('musica') && !!caixa('games'), 'Música sai das sugestões; Games continua');
+  d.querySelector('#lista-sugestoes .ignorar').click();
+  await esperar(100);
+  confere((dados.config.sugestoesIgnoradas || []).includes('games') && !caixa('games'), 'Ignorar guarda a escolha e esconde a sugestão');
+  dom.window.close();
+}
+
 (async () => {
   await testeClassificador();
+  await testeSugestoes();
   await testeFeed();
   await testeImportacao();
   await testeOpcoes();
   await testePermissao();
+  await testeSugestoesNaPagina();
   console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo.');
   process.exit(falhas ? 1 : 0);
 })();

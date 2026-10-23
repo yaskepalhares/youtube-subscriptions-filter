@@ -18,16 +18,24 @@ dos canais da temática escolhida.
 - **Importação dos canais**: o botão *Importar do YouTube* abre `youtube.com/feed/channels`, rola a
   lista sozinho e lê nome, @, descrição e foto de cada canal. Também aceita o `subscriptions.csv`
   do Google Takeout.
-- **Classificação automática** por palavras-chave procuradas no nome, no @ e na descrição.
-  Um canal pode ficar em mais de uma temática.
+- **Categoria oficial do YouTube**: na importação, a extensão lê a categoria (Música, Jogos, Notícias e
+  política…) e as tags dos 3 vídeos mais recentes de cada canal. São pedidos pequenos ao próprio
+  YouTube, cerca de um minuto para 150 canais.
+- **Classificação automática** que combina a categoria do YouTube com palavras-chave procuradas no
+  nome, no @, na descrição e nas tags. Um canal pode ficar em mais de uma temática.
+- **Sugestão de temáticas**: a partir dos seus canais, a extensão propõe temáticas de um catálogo de
+  ~30 (Música, Games, Humor, Esportes, Culinária, Podcasts…) com o número de canais que cada uma
+  pegaria; as marcadas são criadas ao clicar em *Classificar automaticamente*. Também mostra as
+  palavras que mais se repetem entre os canais que sobraram sem categoria.
 - **Ajuste manual**: na revisão, um clique inclui ou tira o canal de uma temática. Ajustes manuais não
   são desfeitos pela classificação automática nem por uma nova importação (↺ devolve ao automático).
 - **Temáticas editáveis**: criar, renomear, remover e mudar palavras-chave. Vem com Tecnologia,
-  RuneScape, Investimentos e Política como ponto de partida.
+  RuneScape, Investimentos e Política como ponto de partida; o catálogo fica em `extensao/catalogo.js`.
+- A barra de pílulas e as configurações seguem o modo claro/escuro do sistema.
 - Opção de esconder os Shorts quando há filtro ativo, e backup/restauração em JSON.
 
-Tudo fica salvo localmente no Safari (`browser.storage.local`). A extensão não envia dados para lugar
-nenhum e só tem acesso a `www.youtube.com`.
+Tudo fica salvo localmente no Safari (`browser.storage.local`). A extensão só conversa com
+`www.youtube.com` (para ler a lista e as categorias dos canais) e não envia dados para nenhum outro lugar.
 
 ## Instalação
 
@@ -72,8 +80,10 @@ Em *Safari › Ajustes… › Desenvolvedor*, clique em *Adicionar Extensão Tem
 ```
 extensao/
   manifest.json     Manifest V3
-  shared.js         armazenamento, classificador, identificação de canais
-  content.js        pílulas e filtro em /feed/subscriptions; importação em /feed/channels
+  catalogo.js       temáticas que podem ser sugeridas e categorias do YouTube
+  shared.js         armazenamento, classificador, sugestões, identificação de canais
+  content.js        pílulas e filtro em /feed/subscriptions; importação e leitura das
+                    categorias em /feed/channels
   content.css
   options.html/js/css  página de configurações
   background.js     abre as configurações na instalação e pelo ícone da barra

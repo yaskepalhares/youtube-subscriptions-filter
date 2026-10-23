@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Filtro de Inscrições",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Separa o feed de inscrições do YouTube por temáticas, com pílulas de filtro no topo da página.",
   "icons": {
     "48": "icons/icon-48.png",
@@ -36,6 +36,7 @@
         "*://www.youtube.com/*"
       ],
       "js": [
+        "catalogo.js",
         "shared.js",
         "content.js"
       ],
