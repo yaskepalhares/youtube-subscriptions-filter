@@ -14,7 +14,8 @@ dos canais da temática escolhida.
 ## Funcionalidades
 
 - **Pílulas no feed**: *Todos*, uma por temática e *Sem categoria*, com o número de vídeos carregados
-  em cada uma. A barra acompanha a rolagem e o filtro escolhido fica salvo.
+  em cada uma. Dá para marcar várias temáticas ao mesmo tempo (o feed mostra os vídeos de qualquer uma
+  delas); desmarcar a última volta para *Todos*. A barra acompanha a rolagem e a seleção fica salva.
 - **Importação dos canais**: o botão *Importar do YouTube* abre `youtube.com/feed/channels`, rola a
   lista sozinho e lê nome, @, descrição e foto de cada canal. Também aceita o `subscriptions.csv`
   do Google Takeout.

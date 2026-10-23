@@ -113,6 +113,13 @@ async function testeClassificador() {
   confere(JSON.stringify(Y.extrairCanalDeHref('/@Fulano%C3%A7/videos')) === JSON.stringify({ handle: '@fulanoç' }), 'handle com acento decodificado');
   confere(Y.extrairCanalDeHref('/channel/UCabcdefghijklmnopqrstuv').id === 'UCabcdefghijklmnopqrstuv', 'link /channel/UC…');
   confere(Y.extrairCanalDeHref('/watch?v=123') === null, 'link de vídeo ignorado');
+  {
+    const dom2 = new JSDOM('<!doctype html><body></body>', { url: 'https://www.youtube.com/', runScripts: 'outside-only' });
+    carregarNaJanela(dom2, fakeBrowser({ filtroAtivo: 'politica' }), ['catalogo.js', 'shared.js']);
+    const e = await dom2.window.YTCat.carregarEstado();
+    confere(JSON.stringify(e.filtrosAtivos) === '["politica"]', 'escolha da versão antiga (uma temática) é aproveitada');
+    dom2.window.close();
+  }
 
   const csv = 'Channel Id,Channel Url,Channel Title\nUCaaaaaaaaaaaaaaaaaaaaaa,http://www.youtube.com/channel/UCaaaaaaaaaaaaaaaaaaaaaa,"Canal, com vírgula"\nUCbbbbbbbbbbbbbbbbbbbbbb,http://www.youtube.com/channel/UCbbbbbbbbbbbbbbbbbbbbbb,OSRS Daily\n';
   const lidos = Y.lerCsvTakeout(csv);
@@ -242,7 +249,7 @@ async function testeFeed() {
   confere(visiveis.length === 1 && visiveis[0].textContent.includes('Framed'), 'filtro RuneScape mostra só o Framed');
   confere(d.querySelector('ytd-rich-section-renderer').hasAttribute('data-ytcat-oculto'), 'prateleira de Shorts oculta com filtro');
   await esperar(300);
-  confere(browser._dados.filtroAtivo === 'runescape', 'filtro escolhido é salvo');
+  confere(JSON.stringify(browser._dados.filtrosAtivos) === '["runescape"]', 'filtro escolhido é salvo');
 
   // Novos vídeos chegando pela rolagem infinita também são filtrados.
   const novo = d.createElement('div');
@@ -251,15 +258,39 @@ async function testeFeed() {
   await esperar(400);
   confere(d.querySelector('#contents > ytd-rich-item-renderer:last-of-type').hasAttribute('data-ytcat-oculto'), 'vídeo carregado depois também é filtrado');
 
-  d.getElementById('ytcat-barra').querySelector('[data-filtro="runescape"]').click();
-  await esperar(50);
-  confere(ocultos().length === 0, 'clicar de novo na temática ativa volta para "Todos"');
-  confere(d.getElementById('ytcat-barra').querySelector('[data-filtro="todos"]').classList.contains('ytcat-ativa'), 'pílula "Todos" fica ativa');
+  // Seleção múltipla.
+  const clicar = async (id) => {
+    d.getElementById('ytcat-barra').querySelector(`[data-filtro="${id}"]`).click();
+    await esperar(50);
+  };
+  const ativa = (id) => d.getElementById('ytcat-barra').querySelector(`[data-filtro="${id}"]`).classList.contains('ytcat-ativa');
+  const nomesVisiveis = () => [...d.querySelectorAll('#contents > ytd-rich-item-renderer:not([data-ytcat-oculto])')]
+    .map((c) => c.textContent.replace(/\s+/g, ' ').trim());
+  const mostra = (nome) => nomesVisiveis().some((t) => t.includes(nome));
+
+  await clicar('tecnologia');
+  confere(ativa('runescape') && ativa('tecnologia') && !ativa('todos'), 'segunda temática soma à seleção');
+  confere(mostra('Framed') && mostra('Canaltech') && mostra('Meteoro') && !mostra('Me Poupe'), 'mostra vídeos de qualquer temática marcada');
   await esperar(300);
-  confere(browser._dados.filtroAtivo === 'todos', 'volta para "Todos" é salva');
-  d.getElementById('ytcat-barra').querySelector('[data-filtro="todos"]').click();
-  await esperar(50);
-  confere(ocultos().length === 0, 'clicar em "Todos" com "Todos" ativo não muda nada');
+  confere(JSON.stringify(browser._dados.filtrosAtivos) === '["runescape","tecnologia"]', 'seleção múltipla é salva');
+
+  await clicar('runescape');
+  confere(!ativa('runescape') && ativa('tecnologia'), 'desmarcar uma de duas mantém a outra');
+  confere(!mostra('Framed') && mostra('Canaltech'), 'feed passa a mostrar só a que ficou');
+
+  await clicar('tecnologia');
+  confere(ocultos().length === 0 && ativa('todos'), 'desmarcar a única marcada volta para "Todos"');
+  await esperar(300);
+  confere(JSON.stringify(browser._dados.filtrosAtivos) === '[]', 'volta para "Todos" é salva');
+
+  await clicar('todos');
+  confere(ocultos().length === 0 && ativa('todos'), 'clicar em "Todos" com "Todos" ativo não muda nada');
+
+  await clicar('politica');
+  await clicar('__sem__');
+  confere(mostra('Meteoro') && mostra('Canal Novo') && !mostra('Framed'), 'temática + "Sem categoria" juntas');
+  await clicar('todos');
+  confere(ocultos().length === 0 && !ativa('politica') && !ativa('__sem__'), '"Todos" limpa a seleção');
 
   d.getElementById('ytcat-barra').querySelector('[data-acao="opcoes"]').click();
   confere(browser._mensagens.some((m) => m.tipo === 'abrirOpcoes'), 'engrenagem pede para abrir as configurações');

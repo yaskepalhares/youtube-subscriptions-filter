@@ -28,7 +28,7 @@
     sugestoesIgnoradas: []     // temáticas do catálogo que o usuário dispensou
   };
 
-  const CHAVES = ['categorias', 'canais', 'config', 'filtroAtivo', 'ultimaImportacao'];
+  const CHAVES = ['categorias', 'canais', 'config', 'filtrosAtivos', 'filtroAtivo', 'ultimaImportacao'];
 
   // ---------------------------------------------------------------------------
   // Texto
@@ -422,7 +422,11 @@
       categorias: Array.isArray(d.categorias) ? d.categorias : clonar(CATEGORIAS_PADRAO),
       canais: d.canais && typeof d.canais === 'object' ? d.canais : {},
       config: { ...CONFIG_PADRAO, ...(d.config || {}) },
-      filtroAtivo: d.filtroAtivo || 'todos',
+      // Temáticas marcadas na barra; vazio = "Todos". (filtroAtivo é da versão
+      // com seleção única e só é lido para não perder a escolha antiga.)
+      filtrosAtivos: Array.isArray(d.filtrosAtivos)
+        ? d.filtrosAtivos
+        : d.filtroAtivo && d.filtroAtivo !== 'todos' ? [d.filtroAtivo] : [],
       ultimaImportacao: d.ultimaImportacao || null
     };
   }

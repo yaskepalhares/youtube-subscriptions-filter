@@ -162,18 +162,19 @@
     return { canal: null, identificado: temPista };
   }
 
-  function filtroValido() {
-    const f = estado.filtroAtivo;
-    if (f === FILTRO_TODOS) return f;
-    if (f === FILTRO_SEM) return estado.config.mostrarSemCategoria ? f : FILTRO_TODOS;
-    return estado.categorias.some((c) => c.id === f) ? f : FILTRO_TODOS;
+  // Temáticas marcadas que ainda existem. Lista vazia = "Todos".
+  function filtrosValidos() {
+    const ids = new Set(estado.categorias.map((c) => c.id));
+    if (estado.config.mostrarSemCategoria) ids.add(FILTRO_SEM);
+    return (estado.filtrosAtivos || []).filter((f, i, lista) => ids.has(f) && lista.indexOf(f) === i);
   }
 
   function processarFeed() {
     const raiz = raizInscricoes();
     if (!raiz) return;
 
-    const filtro = filtroValido();
+    const filtros = filtrosValidos();
+    const todos = filtros.length === 0;
     const contagem = { [FILTRO_TODOS]: 0, [FILTRO_SEM]: 0 };
     for (const c of estado.categorias) contagem[c.id] = 0;
 
@@ -191,10 +192,9 @@
       if (identificado && cats.length === 0) contagem[FILTRO_SEM]++;
       for (const id of cats) if (id in contagem) contagem[id]++;
 
-      let mostrar;
-      if (filtro === FILTRO_TODOS) mostrar = true;
-      else if (filtro === FILTRO_SEM) mostrar = identificado && cats.length === 0;
-      else mostrar = cats.includes(filtro);
+      // Com várias temáticas marcadas, mostra o vídeo se ele é de qualquer uma.
+      const mostrar = todos || filtros.some((f) =>
+        f === FILTRO_SEM ? identificado && cats.length === 0 : cats.includes(f));
 
       if (mostrar) visiveis++;
       if (card.hasAttribute(ATRIBUTO_OCULTO) === mostrar) {
@@ -202,7 +202,7 @@
       }
     }
 
-    const ocultarPrateleiras = filtro !== FILTRO_TODOS && estado.config.ocultarShorts;
+    const ocultarPrateleiras = !todos && estado.config.ocultarShorts;
     const cabecalho = cabecalhoDoFeed(raiz);
     for (const prateleira of raiz.querySelectorAll(SEL_PRATELEIRAS)) {
       // O cabeçalho "Mais recentes" pode morar numa seção; ele nunca some.
@@ -219,8 +219,8 @@
       }
     }
 
-    garantirBarra(raiz, filtro, contagem, visiveis);
-    empurrarCarregamento(raiz, filtro, visiveis);
+    garantirBarra(raiz, filtros, contagem, visiveis);
+    empurrarCarregamento(raiz, todos, visiveis);
     const resumo = `${naoIdentificados}/${cards.length}`;
     if (naoIdentificados > 0 && resumo !== ultimoResumoLog) {
       ultimoResumoLog = resumo;
@@ -230,8 +230,8 @@
 
   // Com um filtro ativo, a página fica curta e o YouTube pode demorar a pedir
   // mais vídeos. Se o indicador de "carregar mais" está à vista, cutucamos a rolagem.
-  function empurrarCarregamento(raiz, filtro, visiveis) {
-    if (filtro === FILTRO_TODOS || visiveis > 24) return;
+  function empurrarCarregamento(raiz, todos, visiveis) {
+    if (todos || visiveis > 24) return;
     if (Date.now() - ultimoEmpurrao < 1500) return;
     const continuacao = raiz.querySelector('ytd-continuation-item-renderer');
     if (!continuacao || !continuacao.getBoundingClientRect) return;
@@ -283,7 +283,8 @@
     return null;
   }
 
-  function garantirBarra(raiz, filtro, contagem, visiveis) {
+  function garantirBarra(raiz, filtros, contagem, visiveis) {
+    const todos = filtros.length === 0;
     let barra = raiz.querySelector('#' + ID_BARRA);
     const lugar = pontoDeInsercao(raiz);
     if (!barra) {
@@ -303,23 +304,27 @@
 
     const semCanais = Object.keys(estado.canais).length === 0;
     const assinatura = JSON.stringify([
-      filtro, contagem, visiveis, semCanais,
+      filtros, contagem, visiveis, semCanais,
       estado.categorias.map((c) => [c.id, c.nome]),
       estado.config.mostrarSemCategoria
     ]);
     if (assinatura === assinaturaBarra && barra.childElementCount) return;
     assinaturaBarra = assinatura;
 
-    const pilula = (id, rotulo, n) => criar(
-      'button',
-      {
-        type: 'button',
-        className: 'ytcat-pilula' + (filtro === id ? ' ytcat-ativa' : ''),
-        'data-filtro': id,
-        title: `${rotulo}: ${n} vídeo(s) carregado(s)`
-      },
-      [criar('span', { texto: rotulo }), criar('span', { className: 'ytcat-n', texto: String(n) })]
-    );
+    const pilula = (id, rotulo, n) => {
+      const ativa = id === FILTRO_TODOS ? todos : filtros.includes(id);
+      return criar(
+        'button',
+        {
+          type: 'button',
+          className: 'ytcat-pilula' + (ativa ? ' ytcat-ativa' : ''),
+          'aria-pressed': String(ativa),
+          'data-filtro': id,
+          title: `${rotulo}: ${n} vídeo(s) carregado(s)`
+        },
+        [criar('span', { texto: rotulo }), criar('span', { className: 'ytcat-n', texto: String(n) })]
+      );
+    };
 
     const pilulas = criar('div', { className: 'ytcat-pilulas', role: 'toolbar' });
     pilulas.append(pilula(FILTRO_TODOS, 'Todos', contagem[FILTRO_TODOS]));
@@ -337,7 +342,7 @@
     }
 
     const lateral = criar('div', { className: 'ytcat-lateral' });
-    if (filtro !== FILTRO_TODOS) {
+    if (!todos) {
       lateral.append(criar('span', {
         className: 'ytcat-status',
         texto: `${visiveis} de ${contagem[FILTRO_TODOS]} vídeos carregados`
@@ -416,18 +421,25 @@
       abrirOpcoes();
       return;
     }
-    let filtro = alvo.dataset.filtro;
-    if (!filtro) return;
-    // Clicar de novo na temática já selecionada volta para "Todos".
-    if (filtro === filtroValido()) {
-      if (filtro === FILTRO_TODOS) return;
-      filtro = FILTRO_TODOS;
+    const id = alvo.dataset.filtro;
+    if (!id) return;
+    const atuais = filtrosValidos();
+    let novos;
+    if (id === FILTRO_TODOS) {
+      // "Todos" limpa a seleção.
+      if (!atuais.length) return;
+      novos = [];
+    } else if (atuais.includes(id)) {
+      // Desmarca; se era a única marcada, a lista fica vazia = "Todos".
+      novos = atuais.filter((f) => f !== id);
+    } else {
+      novos = [...atuais, id];
     }
-    estado.filtroAtivo = filtro;
+    estado.filtrosAtivos = novos;
     assinaturaBarra = '';
     processarFeed();
     window.scrollTo({ top: 0 });
-    Y.salvar({ filtroAtivo: filtro });
+    Y.salvar({ filtrosAtivos: novos });
   }
 
   // ---------------------------------------------------------------------------
