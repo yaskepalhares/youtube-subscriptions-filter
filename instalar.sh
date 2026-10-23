@@ -89,12 +89,10 @@ echo "Esquema: $ESQUEMA"
 passo "Escolhendo a assinatura"
 
 if [[ -z "${TEAM_ID:-}" && -z "${SEM_ASSINATURA:-}" ]]; then
-  # 1) Times das contas cadastradas no Xcode (Settings › Accounts).
-  for chave in IDEProvisioningTeamByIdentifier IDEProvisioningTeams; do
-    TEAM_ID="$(defaults read com.apple.dt.Xcode "$chave" 2>/dev/null \
-      | sed -n 's/.*teamID = "*\([A-Z0-9]\{10\}\)"*;.*/\1/p' | head -n 1 || true)"
-    [[ -n "$TEAM_ID" ]] && break
-  done
+  # 1) Times das contas cadastradas no Xcode (Settings › Accounts). O nome da
+  #    chave muda entre versões do Xcode, então procuramos em todas as preferências.
+  TEAM_ID="$(defaults read com.apple.dt.Xcode 2>/dev/null \
+    | sed -n 's/.*teamID = "*\([A-Z0-9]\{10\}\)"*;.*/\1/p' | head -n 1 || true)"
 fi
 if [[ -z "${TEAM_ID:-}" && -z "${SEM_ASSINATURA:-}" ]]; then
   # 2) Campo OU de um certificado "Apple Development" já existente.
