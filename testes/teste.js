@@ -251,9 +251,15 @@ async function testeFeed() {
   await esperar(400);
   confere(d.querySelector('#contents > ytd-rich-item-renderer:last-of-type').hasAttribute('data-ytcat-oculto'), 'vídeo carregado depois também é filtrado');
 
+  d.getElementById('ytcat-barra').querySelector('[data-filtro="runescape"]').click();
+  await esperar(50);
+  confere(ocultos().length === 0, 'clicar de novo na temática ativa volta para "Todos"');
+  confere(d.getElementById('ytcat-barra').querySelector('[data-filtro="todos"]').classList.contains('ytcat-ativa'), 'pílula "Todos" fica ativa');
+  await esperar(300);
+  confere(browser._dados.filtroAtivo === 'todos', 'volta para "Todos" é salva');
   d.getElementById('ytcat-barra').querySelector('[data-filtro="todos"]').click();
   await esperar(50);
-  confere(ocultos().length === 0, 'voltar para "Todos" mostra tudo');
+  confere(ocultos().length === 0, 'clicar em "Todos" com "Todos" ativo não muda nada');
 
   d.getElementById('ytcat-barra').querySelector('[data-acao="opcoes"]').click();
   confere(browser._mensagens.some((m) => m.tipo === 'abrirOpcoes'), 'engrenagem pede para abrir as configurações');

@@ -416,8 +416,13 @@
       abrirOpcoes();
       return;
     }
-    const filtro = alvo.dataset.filtro;
-    if (!filtro || filtro === estado.filtroAtivo) return;
+    let filtro = alvo.dataset.filtro;
+    if (!filtro) return;
+    // Clicar de novo na temática já selecionada volta para "Todos".
+    if (filtro === filtroValido()) {
+      if (filtro === FILTRO_TODOS) return;
+      filtro = FILTRO_TODOS;
+    }
     estado.filtroAtivo = filtro;
     assinaturaBarra = '';
     processarFeed();
