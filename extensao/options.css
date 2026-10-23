@@ -109,6 +109,26 @@ h3 {
   margin: 0;
 }
 
+.permissao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.permissao[hidden] {
+  display: none;
+}
+
+.permissao > div {
+  flex: 1 1 320px;
+}
+
+.permissao p {
+  margin-top: 4px;
+}
+
 .ajuda {
   margin: 8px 0 12px;
   color: var(--texto-2);

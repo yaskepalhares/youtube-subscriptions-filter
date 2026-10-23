@@ -279,11 +279,57 @@ async function testeOpcoes() {
   dom.window.close();
 }
 
+// ---------------------------------------------------------------------------
+async function testePermissao() {
+  console.log('\nPedido de acesso ao YouTube');
+  const html = ler('options.html').replace(/<script[^>]*><\/script>/g, '');
+  const dom = new JSDOM(html, { url: 'safari-web-extension://x/options.html', runScripts: 'outside-only' });
+  const browser = fakeBrowser();
+  let concedido = false;
+  const pedidos = [];
+  browser.permissions = {
+    contains: async () => concedido,
+    request: (p) => { pedidos.push(p); concedido = true; return Promise.resolve(true); },
+    onAdded: { addListener: () => {} },
+    onRemoved: { addListener: () => {} }
+  };
+  carregarNaJanela(dom, browser, ['shared.js', 'options.js']);
+  await esperar(200);
+  const d = dom.window.document;
+  confere(!d.getElementById('permissao').hidden, 'aviso de acesso aparece quando falta permissão');
+
+  d.getElementById('btn-importar-yt').click();
+  confere(pedidos.length === 1, 'importar pede o acesso no próprio clique (antes de qualquer espera)');
+  confere(JSON.stringify(pedidos[0]) === JSON.stringify({ origins: ['*://www.youtube.com/*'] }), 'pedido é só para www.youtube.com');
+  await esperar(100);
+  confere(d.getElementById('permissao').hidden, 'aviso some depois que o acesso é concedido');
+  confere(browser._abas.length === 1, 'importação segue depois do pedido');
+
+  // Recusado: mostra o caminho manual.
+  concedido = false;
+  browser.permissions.request = () => Promise.resolve(false);
+  dom.window.dispatchEvent(new dom.window.Event('focus'));
+  await esperar(50);
+  confere(!d.getElementById('permissao').hidden, 'aviso volta se o acesso for retirado');
+  d.getElementById('btn-permissao').click();
+  await esperar(50);
+  confere(!d.getElementById('ajuda-permissao').hidden, 'recusa mostra como liberar pelos Ajustes do Safari');
+
+  // Sem a API de permissões, o aviso não aparece (não dá para saber o estado).
+  const dom2 = new JSDOM(html, { url: 'safari-web-extension://x/options.html', runScripts: 'outside-only' });
+  carregarNaJanela(dom2, fakeBrowser(), ['shared.js', 'options.js']);
+  await esperar(150);
+  confere(dom2.window.document.getElementById('permissao').hidden, 'sem API de permissões o aviso fica escondido');
+  dom.window.close();
+  dom2.window.close();
+}
+
 (async () => {
   await testeClassificador();
   await testeFeed();
   await testeImportacao();
   await testeOpcoes();
+  await testePermissao();
   console.log(falhas ? `\n${falhas} falha(s)` : '\nTudo certo.');
   process.exit(falhas ? 1 : 0);
 })();

@@ -95,7 +95,57 @@
     $('boas-vindas').hidden = total > 0;
   }
 
-  async function importarDoYoutube() {
+  // ---------------------------------------------------------------------------
+  // Acesso ao YouTube
+  // ---------------------------------------------------------------------------
+
+  const ORIGENS = ['*://www.youtube.com/*'];
+  // true/false quando o Safari informa; null quando a API não está disponível.
+  let permissaoConcedida = null;
+
+  async function consultarPermissao() {
+    try {
+      if (!api.permissions || !api.permissions.contains) return null;
+      return !!(await api.permissions.contains({ origins: ORIGENS }));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function desenharPermissao() {
+    permissaoConcedida = await consultarPermissao();
+    $('permissao').hidden = permissaoConcedida !== false;
+  }
+
+  // Precisa ser chamada direto no clique (sem await antes), senão o Safari
+  // não mostra a janela de permissão.
+  function pedirPermissao() {
+    let pedido;
+    try {
+      pedido = api.permissions.request({ origins: ORIGENS });
+    } catch (e) {
+      $('ajuda-permissao').hidden = false;
+      return Promise.resolve(false);
+    }
+    return Promise.resolve(pedido)
+      .then(async (ok) => {
+        await desenharPermissao();
+        if (!ok || permissaoConcedida === false) $('ajuda-permissao').hidden = false;
+        return !!ok;
+      })
+      .catch(() => {
+        $('ajuda-permissao').hidden = false;
+        return false;
+      });
+  }
+
+  function importarDoYoutube() {
+    // Pede o acesso no mesmo clique, antes de qualquer espera.
+    const pedido = permissaoConcedida === false ? pedirPermissao() : Promise.resolve(true);
+    return pedido.then(abrirImportacao);
+  }
+
+  async function abrirImportacao() {
     await Y.salvar({ importacaoPendente: Date.now() });
     const url = 'https://www.youtube.com/feed/channels';
     try {
@@ -423,6 +473,16 @@
     if (!salvo || !Array.isArray(salvo.categorias)) await Y.salvar({ categorias: estado.categorias });
 
     desenharTudo();
+    await desenharPermissao();
+
+    $('btn-permissao').addEventListener('click', pedirPermissao);
+    if (api.permissions && api.permissions.onAdded) api.permissions.onAdded.addListener(desenharPermissao);
+    if (api.permissions && api.permissions.onRemoved) api.permissions.onRemoved.addListener(desenharPermissao);
+    // O acesso também pode ser liberado pelos Ajustes do Safari, fora desta página.
+    window.addEventListener('focus', desenharPermissao);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) desenharPermissao();
+    });
 
     $('btn-importar-yt').addEventListener('click', importarDoYoutube);
     $('btn-importar-csv').addEventListener('click', () => $('arquivo-csv').click());
