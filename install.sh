@@ -115,6 +115,10 @@ fi
 # -----------------------------------------------------------------------------
 step "Building (this can take a minute)"
 
+# Version shown in Safari's settings, taken from the extension's manifest.
+VERSION="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' "$ROOT/extension/manifest.json" | head -n 1)"
+VERSION="${VERSION:-1.0}"
+
 LOG="$BUILD/build.log"
 build() {
   xcodebuild \
@@ -123,6 +127,8 @@ build() {
     -configuration Release \
     -destination 'generic/platform=macOS' \
     -derivedDataPath "$DERIVED" \
+    MARKETING_VERSION="$VERSION" \
+    CURRENT_PROJECT_VERSION="$VERSION" \
     "$@" \
     build >"$LOG" 2>&1
 }
@@ -144,18 +150,56 @@ APP="$(find "$DERIVED/Build/Products/Release" -maxdepth 1 -name '*.app' | head -
 [[ -n "$APP" ]] || fail "could not find the built app in $DERIVED."
 
 # -----------------------------------------------------------------------------
-step "Installing in $DEST"
+step "Installing version $VERSION in $DEST"
+
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+EXTENSION_ID="$BUNDLE_ID.Extension"
+
+# Unregisters a copy of the app (and its extension) from macOS, so Safari
+# stops loading it.
+unregister() {
+  local app="$1"
+  for appex in "$app"/Contents/PlugIns/*.appex; do
+    [[ -d "$appex" ]] && pluginkit -r "$appex" >/dev/null 2>&1 || true
+  done
+  [[ -x "$LSREGISTER" ]] && "$LSREGISTER" -u "$app" >/dev/null 2>&1 || true
+}
 
 mkdir -p "$DEST"
 APP_FILE="$(basename "$APP")"
+INSTALLED="$DEST/$APP_FILE"
 pkill -x "${APP_FILE%.app}" 2>/dev/null || true
-rm -rf "${DEST:?}/${APP_FILE:?}"
+rm -rf "${INSTALLED:?}"
 cp -R "$APP" "$DEST/"
-# Registers the app with the system and opens it once so Safari sees the
-# extension. Right after replacing the app, "open" sometimes fails (error
+
+# Removes every other copy of this extension known to macOS (older installs,
+# Xcode build folders), otherwise Safari runs two versions at the same time.
+OTHERS="$(pluginkit -mAvvv -i "$EXTENSION_ID" 2>/dev/null \
+  | sed -n 's/^ *Path = \(.*\.app\)\/Contents\/PlugIns\/.*\.appex$/\1/p' | sort -u || true)"
+# Build products from this script, including the folder used by version 0.4.
+for app in "$APP" "$BUILD"/derivados/Build/Products/*/*.app; do
+  [[ -d "$app" ]] && OTHERS+=$'\n'"$app"
+done
+REMOVED=0
+while IFS= read -r app; do
+  [[ -z "$app" || "$app" == "$INSTALLED" ]] && continue
+  unregister "$app"
+  REMOVED=$((REMOVED + 1))
+  # Copies inside this project's build folder are deleted; others are only
+  # unregistered and reported.
+  if [[ "$app" == "$BUILD"/* ]]; then
+    rm -rf "${app:?}"
+  else
+    echo "Unregistered an older copy at: $app (you can delete it)"
+  fi
+done < <(printf '%s\n' "$OTHERS" | sort -u)
+rm -rf "${BUILD:?}/derivados"
+[[ "$REMOVED" -gt 0 ]] && echo "Removed $REMOVED older copy/copies of the extension."
+
+# Registers the installed app with the system and opens it once so Safari sees
+# the extension. Right after replacing the app, "open" sometimes fails (error
 # -600); retry, and if it still fails just warn: the extension is registered.
-LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
-[[ -x "$LSREGISTER" ]] && "$LSREGISTER" -f "$DEST/$APP_FILE" >/dev/null 2>&1 || true
+[[ -x "$LSREGISTER" ]] && "$LSREGISTER" -f "$INSTALLED" >/dev/null 2>&1 || true
 OPENED=""
 for _ in 1 2 3; do
   sleep 1
