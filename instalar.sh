@@ -150,8 +150,17 @@ NOME_APP="$(basename "$APP")"
 pkill -x "${NOME_APP%.app}" 2>/dev/null || true
 rm -rf "${DESTINO:?}/${NOME_APP:?}"
 cp -R "$APP" "$DESTINO/"
-# Abrir o app uma vez registra a extensão no Safari.
-open "$DESTINO/$NOME_APP"
+# Registra o app no sistema e o abre uma vez, para o Safari enxergar a extensão.
+# Logo depois de substituir o app, o "open" às vezes falha (erro -600); tentamos
+# de novo e, se não der, só avisamos: a extensão já fica registrada.
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+[[ -x "$LSREGISTER" ]] && "$LSREGISTER" -f "$DESTINO/$NOME_APP" >/dev/null 2>&1 || true
+ABRIU=""
+for _ in 1 2 3; do
+  sleep 1
+  if open "$DESTINO/$NOME_APP" 2>/dev/null; then ABRIU=1; break; fi
+done
+[[ -n "$ABRIU" ]] || echo "Aviso: não consegui abrir o app sozinho. Abra \"$NOME_APP\" em $DESTINO uma vez."
 
 cat <<FIM
 
