@@ -1,0 +1,634 @@
+{
+  "extName": {
+    "message": "Subscriptions Filter"
+  },
+  "extDescription": {
+    "message": "Sort your YouTube subscriptions feed into themes, with filter pills at the top of the page."
+  },
+  "actionTitle": {
+    "message": "Subscriptions Filter: settings"
+  },
+  "pillAll": {
+    "message": "All"
+  },
+  "pillUncategorized": {
+    "message": "Uncategorized"
+  },
+  "pillTooltip": {
+    "message": "$P1$: $P2$ loaded videos",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "barImportHint": {
+    "message": "Import your channels to get started"
+  },
+  "barLoadedStatus": {
+    "message": "$P1$ of $P2$ loaded videos",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "barSettings": {
+    "message": "Theme settings"
+  },
+  "importerIntro": {
+    "message": "Import this channel list to sort your channels into themes."
+  },
+  "importerImport": {
+    "message": "Import channels"
+  },
+  "importerRetry": {
+    "message": "Try again"
+  },
+  "importerClose": {
+    "message": "Close"
+  },
+  "importerOpenSettings": {
+    "message": "Open settings"
+  },
+  "importerWaiting": {
+    "message": "Waiting for the channel list to load…"
+  },
+  "importerNoList": {
+    "message": "Couldn't find the channel list on this page. Make sure you're signed in to YouTube."
+  },
+  "importerScrolling": {
+    "message": "Scrolling to load every channel… $P1$ found.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "importerNoChannels": {
+    "message": "Couldn't find any channels on this page. YouTube may have changed its layout."
+  },
+  "importerReadingCategories": {
+    "message": "Reading each channel's YouTube category… $P1$ of $P2$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "importerDone": {
+    "message": "Done: $P1$ channels read ($P2$ new).",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "importerCategoriesRead": {
+    "message": "YouTube category read for $P1$ of $P2$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "importerStoppedEarly": {
+    "message": "Stopped before the end ($P1$); import again later to finish.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "importerSuggestions": {
+    "message": "Found $P1$ new themes to suggest; see the settings.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "importerUncategorized": {
+    "message": "$P1$ channels are uncategorized; review them in the settings.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "importerError": {
+    "message": "Something went wrong during the import: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorRateLimited": {
+    "message": "YouTube asked for a pause"
+  },
+  "errorTooManyFailures": {
+    "message": "too many failures in a row"
+  },
+  "optSubtitle": {
+    "message": "Sort your YouTube subscriptions feed into themes."
+  },
+  "optPermissionTitle": {
+    "message": "Access to YouTube is still needed"
+  },
+  "optPermissionText": {
+    "message": "Without it the extension can't show the pills or import your channels. In Safari's prompt, choose “Always Allow on This Website”."
+  },
+  "optPermissionHelp": {
+    "message": "If no prompt appeared, allow it manually: Safari › Settings › Extensions › Subscriptions Filter › Edit Websites…, and set youtube.com to Allow."
+  },
+  "optPermissionButton": {
+    "message": "Allow access to YouTube"
+  },
+  "optWelcomeTitle": {
+    "message": "Getting started"
+  },
+  "optWelcomeStep1": {
+    "message": "Import the channels you are subscribed to."
+  },
+  "optWelcomeStep2": {
+    "message": "Check the suggested themes and their keywords."
+  },
+  "optWelcomeStep3": {
+    "message": "Review the automatic classification and adjust what you need."
+  },
+  "optWelcomeThen": {
+    "message": "Then open your"
+  },
+  "optWelcomeFeedLink": {
+    "message": "subscriptions feed"
+  },
+  "optChannelsTitle": {
+    "message": "Your channels"
+  },
+  "optImportYoutube": {
+    "message": "Import from YouTube"
+  },
+  "optImportCsv": {
+    "message": "Import Google Takeout CSV"
+  },
+  "optImportHelp": {
+    "message": "“Import from YouTube” opens your channel list in a new tab. The extension scrolls through it, reads each channel's name, @handle and description, and then the official YouTube category of its recent videos (about two minutes for 150 channels). Keep the tab open until it says “Done”. Importing again updates the list without undoing your manual changes."
+  },
+  "optThemesTitle": {
+    "message": "Themes"
+  },
+  "optThemesHelp": {
+    "message": "Each theme has comma-separated keywords, searched in the channel's name, @handle, description and video tags, and can use the official YouTube category. Accents and case don't matter. End a keyword with * to accept continuations: invest* matches “investing” and “investor”."
+  },
+  "optNewTheme": {
+    "message": "+ New theme"
+  },
+  "optRestoreDefaults": {
+    "message": "Restore default themes"
+  },
+  "optSuggestionsTitle": {
+    "message": "Suggestions based on your channels"
+  },
+  "optSuggestionsHelp": {
+    "message": "Checked themes are created when you click “Classify automatically”."
+  },
+  "optWordsHelp": {
+    "message": "Words repeated among uncategorized channels. Click one to create a theme from it:"
+  },
+  "optClassify": {
+    "message": "Classify automatically"
+  },
+  "optIncludeManual": {
+    "message": "Also redo the channels I adjusted by hand"
+  },
+  "optReviewTitle": {
+    "message": "Channel review"
+  },
+  "optReviewHelp": {
+    "message": "Click a theme to add the channel to it or remove it. Channels adjusted by hand are marked and aren't changed by the automatic classification; use ↺ to send them back to automatic."
+  },
+  "optSearchPlaceholder": {
+    "message": "Search channels…"
+  },
+  "optListFilterLabel": {
+    "message": "Show"
+  },
+  "optOptionsTitle": {
+    "message": "Options"
+  },
+  "optHideShorts": {
+    "message": "Hide the Shorts shelf while a filter is on"
+  },
+  "optShowUncategorized": {
+    "message": "Show the “Uncategorized” pill"
+  },
+  "optBackupTitle": {
+    "message": "Backup"
+  },
+  "optExport": {
+    "message": "Export settings (.json)"
+  },
+  "optRestoreBackup": {
+    "message": "Restore from a file"
+  },
+  "statusNoChannels": {
+    "message": "No channels imported yet."
+  },
+  "statusSummary": {
+    "message": "$P1$ channels saved · $P2$ uncategorized · $P3$ adjusted by hand.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "statusLastImport": {
+    "message": "Last import: $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusLastImportCount": {
+    "message": "Last import: $P1$ ($P2$ channels read).",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "statusYoutubePartial": {
+    "message": "YouTube category read for $P1$ of $P2$ channels; import from YouTube to complete it.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "statusYoutubeComplete": {
+    "message": "Every channel has its YouTube category."
+  },
+  "msgImportOpened": {
+    "message": "Opened your YouTube channel list in a new tab. Follow the progress in the corner of the page."
+  },
+  "msgImportFinished": {
+    "message": "Import finished: $P1$ channels read ($P2$ new).",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "msgCsvEmpty": {
+    "message": "Couldn't find channels in this file. It must be the subscriptions.csv from Google Takeout."
+  },
+  "msgCsvImported": {
+    "message": "$P1$ channels read from the CSV ($P2$ new). Takeout has no descriptions, so classification uses only the name and @handle; importing from YouTube is usually more accurate.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "msgFileError": {
+    "message": "Couldn't read the file: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "msgImportFirst": {
+    "message": "Import your channels first."
+  },
+  "msgCreatedThemes": {
+    "message": "Created $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "msgClassified": {
+    "message": "$P1$ channels classified.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "msgClassifiedKeptManual": {
+    "message": "$P1$ channels classified ($P2$ adjusted by hand were kept).",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "msgUncategorizedLeft": {
+    "message": "$P1$ left uncategorized.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "msgCreatedFromWord": {
+    "message": "Created $P1$ and reclassified $P2$ channels.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "msgBackupRestored": {
+    "message": "Backup restored: $P1$ themes and $P2$ channels.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "msgRestoreError": {
+    "message": "Couldn't restore: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNotABackup": {
+    "message": "the file doesn't look like a backup from this extension"
+  },
+  "themeNameLabel": {
+    "message": "Theme name"
+  },
+  "themeKeywordsLabel": {
+    "message": "Keywords"
+  },
+  "themeRemove": {
+    "message": "Remove"
+  },
+  "themeChannelCount": {
+    "message": "$P1$ channels",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "themeYoutubeCategory": {
+    "message": "YouTube category: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "themeYoutubeWeak": {
+    "message": "$P1$ (only if nothing else fits)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "suggestionDismiss": {
+    "message": "Dismiss"
+  },
+  "suggestionDismissTitle": {
+    "message": "Stop suggesting this theme"
+  },
+  "suggestionDetail": {
+    "message": "$P1$ channels · $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "wordTitle": {
+    "message": "$P1$ uncategorized channels have this word",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "listAllChannels": {
+    "message": "All channels"
+  },
+  "listUncategorized": {
+    "message": "Uncategorized"
+  },
+  "listManual": {
+    "message": "Adjusted by hand"
+  },
+  "listCount": {
+    "message": "$P1$ of $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "listShowingLimit": {
+    "message": "Showing $P1$ of $P2$; use the search to find the rest.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "listEmptyNoImport": {
+    "message": "Channels show up here after the import."
+  },
+  "listEmptyFilter": {
+    "message": "No channels match this filter."
+  },
+  "channelNoName": {
+    "message": "(no name)"
+  },
+  "channelManual": {
+    "message": "manual"
+  },
+  "channelBackToAuto": {
+    "message": "Back to automatic classification"
+  },
+  "channelDelete": {
+    "message": "Delete this channel from the list"
+  },
+  "promptNewTheme": {
+    "message": "Name of the new theme:"
+  },
+  "promptThemeFromWord": {
+    "message": "Name of the new theme (it will search for “$P1$”):",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmRemoveTheme": {
+    "message": "Remove the theme “$P1$”? Its channels won't be deleted.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmRestoreDefaults": {
+    "message": "Replace your themes and keywords with the default ones (Technology, RuneScape, Investing, Politics)?"
+  },
+  "confirmIncludeManual": {
+    "message": "This undoes all manual adjustments. Continue?"
+  },
+  "confirmDeleteChannel": {
+    "message": "Delete “$P1$” from the list? It comes back if you import again and are still subscribed.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmRestoreBackup": {
+    "message": "Replace the current themes, channels and options with the ones in the file?"
+  },
+  "theme_technology": {
+    "message": "Technology"
+  },
+  "theme_runescape": {
+    "message": "RuneScape"
+  },
+  "theme_investing": {
+    "message": "Investing"
+  },
+  "theme_politics": {
+    "message": "Politics"
+  },
+  "theme_music": {
+    "message": "Music"
+  },
+  "theme_gaming": {
+    "message": "Gaming"
+  },
+  "theme_science": {
+    "message": "Science"
+  },
+  "theme_education": {
+    "message": "Education"
+  },
+  "theme_comedy": {
+    "message": "Comedy"
+  },
+  "theme_sports": {
+    "message": "Sports"
+  },
+  "theme_combat_sports": {
+    "message": "Combat sports"
+  },
+  "theme_fitness": {
+    "message": "Fitness"
+  },
+  "theme_cooking": {
+    "message": "Cooking"
+  },
+  "theme_movies_tv": {
+    "message": "Movies & TV"
+  },
+  "theme_anime": {
+    "message": "Anime & manga"
+  },
+  "theme_podcasts": {
+    "message": "Podcasts & interviews"
+  },
+  "theme_travel": {
+    "message": "Travel"
+  },
+  "theme_cars": {
+    "message": "Cars & motorcycles"
+  },
+  "theme_animals": {
+    "message": "Animals & pets"
+  },
+  "theme_art_design": {
+    "message": "Art & design"
+  },
+  "theme_diy": {
+    "message": "DIY"
+  },
+  "theme_health": {
+    "message": "Health"
+  },
+  "theme_languages": {
+    "message": "Languages"
+  },
+  "theme_history": {
+    "message": "History"
+  },
+  "theme_books": {
+    "message": "Books & philosophy"
+  },
+  "theme_fashion_beauty": {
+    "message": "Fashion & beauty"
+  },
+  "theme_vlogs": {
+    "message": "Vlogs"
+  },
+  "theme_entertainment": {
+    "message": "Entertainment"
+  }
+}

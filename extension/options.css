@@ -1,35 +1,35 @@
 :root {
   color-scheme: light dark;
-  --fundo: #f6f6f4;
-  --cartao: #ffffff;
-  --texto: #1c1c1e;
-  --texto-2: #6b6b70;
-  --borda: #e3e3e0;
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --text: #1c1c1e;
+  --text-2: #6b6b70;
+  --border: #e3e3e0;
   --chip: #efefec;
-  --chip-texto: #3a3a3c;
-  --acento: #c8322b;
-  --acento-texto: #ffffff;
-  --ativo: #1c1c1e;
-  --ativo-texto: #ffffff;
-  --aviso: #fff6e5;
-  --aviso-borda: #f1d7a6;
+  --chip-text: #3a3a3c;
+  --accent: #c8322b;
+  --accent-text: #ffffff;
+  --active: #1c1c1e;
+  --active-text: #ffffff;
+  --notice: #fff6e5;
+  --notice-border: #f1d7a6;
   --ok: #1f7a4d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --fundo: #161618;
-    --cartao: #1f1f22;
-    --texto: #f2f2f4;
-    --texto-2: #a0a0a6;
-    --borda: #34343a;
+    --bg: #161618;
+    --surface: #1f1f22;
+    --text: #f2f2f4;
+    --text-2: #a0a0a6;
+    --border: #34343a;
     --chip: #2c2c31;
-    --chip-texto: #d9d9de;
-    --acento: #e5534b;
-    --ativo: #f2f2f4;
-    --ativo-texto: #161618;
-    --aviso: #2c2516;
-    --aviso-borda: #5c4a22;
+    --chip-text: #d9d9de;
+    --accent: #e5534b;
+    --active: #f2f2f4;
+    --active-text: #161618;
+    --notice: #2c2516;
+    --notice-border: #5c4a22;
     --ok: #5cc493;
   }
 }
@@ -40,26 +40,26 @@
 
 body {
   margin: 0;
-  background: var(--fundo);
-  color: var(--texto);
+  background: var(--bg);
+  color: var(--text);
   font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
 }
 
-.pagina {
+.page {
   max-width: 920px;
   margin: 0 auto;
   padding: 40px 16px 80px;
 }
 
-.topo h1 {
+.top h1 {
   margin: 0;
   font-size: 28px;
   letter-spacing: -0.01em;
 }
 
-.sub {
+.subtitle {
   margin: 4px 0 24px;
-  color: var(--texto-2);
+  color: var(--text-2);
 }
 
 h2 {
@@ -75,41 +75,41 @@ h3 {
   font-size: 15px;
 }
 
-.num {
+.step {
   display: inline-grid;
   place-items: center;
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--acento);
-  color: var(--acento-texto);
+  background: var(--accent);
+  color: var(--accent-text);
   font-size: 14px;
 }
 
-.bloco,
-.aviso {
+.card,
+.notice {
   margin-bottom: 20px;
   padding: 20px 24px;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background: var(--cartao);
+  background: var(--surface);
 }
 
-.aviso {
-  border-color: var(--aviso-borda);
-  background: var(--aviso);
+.notice {
+  border-color: var(--notice-border);
+  background: var(--notice);
 }
 
-.aviso ol {
+.notice ol {
   margin: 8px 0;
   padding-left: 22px;
 }
 
-.aviso p {
+.notice p {
   margin: 0;
 }
 
-.permissao {
+.permission {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -117,26 +117,26 @@ h3 {
   gap: 12px 20px;
 }
 
-.permissao[hidden] {
+.permission[hidden] {
   display: none;
 }
 
-.permissao > div {
+.permission > div {
   flex: 1 1 320px;
 }
 
-.permissao p {
+.permission p {
   margin-top: 4px;
 }
 
-.ajuda {
+.help {
   margin: 8px 0 12px;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 14px;
 }
 
 .status {
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 14px;
 }
 
@@ -146,8 +146,8 @@ h3 {
   font-size: 14px;
 }
 
-.msg.erro {
-  color: var(--acento);
+.msg.error {
+  color: var(--accent);
 }
 
 code {
@@ -158,39 +158,39 @@ code {
 }
 
 a {
-  color: var(--acento);
+  color: var(--accent);
 }
 
 button {
   height: 34px;
   padding: 0 14px;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--cartao);
-  color: var(--texto);
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
   font-size: 14px;
   cursor: pointer;
 }
 
 button:hover {
-  border-color: var(--texto-2);
+  border-color: var(--text-2);
 }
 
-button.primario {
-  border-color: var(--acento);
-  background: var(--acento);
-  color: var(--acento-texto);
+button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
-button.discreto {
+button.subtle {
   border-color: transparent;
   background: transparent;
-  color: var(--texto-2);
+  color: var(--text-2);
 }
 
-.acoes {
+.actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -205,34 +205,34 @@ button.discreto {
   font-size: 14px;
 }
 
-/* Temáticas */
-.categorias {
+/* Themes */
+.themes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
 }
 
-.categoria {
+.theme {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 10px;
 }
 
-.categoria .linha {
+.theme .row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.categoria input {
+.theme input {
   flex: 1;
   min-width: 0;
   height: 32px;
   padding: 0 8px;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 6px;
   background: transparent;
   color: inherit;
@@ -240,10 +240,10 @@ button.discreto {
   font-weight: 600;
 }
 
-.categoria textarea {
+.theme textarea {
   min-height: 96px;
   padding: 8px;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 6px;
   background: transparent;
   color: inherit;
@@ -251,35 +251,35 @@ button.discreto {
   resize: vertical;
 }
 
-.categoria .rodape {
+.theme .footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
 }
 
-.categoria .remover {
+.theme .remove {
   height: 28px;
   padding: 0 8px;
   border-color: transparent;
   background: transparent;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
 }
 
-.classificar {
+.classify {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 16px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid var(--borda);
+  border-top: 1px solid var(--border);
 }
 
-/* Revisão */
-.filtros {
+/* Channel review */
+.filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -287,33 +287,33 @@ button.discreto {
   margin-bottom: 12px;
 }
 
-.filtros input,
-.filtros select {
+.filters input,
+.filters select {
   height: 34px;
   padding: 0 10px;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--cartao);
+  background: var(--surface);
   color: inherit;
   font: inherit;
   font-size: 14px;
 }
 
-.filtros input {
+.filters input {
   flex: 1 1 220px;
 }
 
-.canais {
-  border-top: 1px solid var(--borda);
+.channels {
+  border-top: 1px solid var(--border);
 }
 
-.canal {
+.channel {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.2fr);
   gap: 12px;
   align-items: start;
   padding: 12px 0;
-  border-bottom: 1px solid var(--borda);
+  border-bottom: 1px solid var(--border);
 }
 
 .avatar {
@@ -324,7 +324,7 @@ button.discreto {
   object-fit: cover;
   display: grid;
   place-items: center;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-weight: 600;
 }
 
@@ -332,19 +332,19 @@ button.discreto {
   min-width: 0;
 }
 
-.info .nome {
-  color: var(--texto);
+.info .name {
+  color: var(--text);
   font-weight: 600;
   text-decoration: none;
 }
 
-.info .nome:hover {
+.info .name:hover {
   text-decoration: underline;
 }
 
 .info .handle {
   display: block;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -355,13 +355,13 @@ button.discreto {
   display: -webkit-box;
   margin: 4px 0 0;
   overflow: hidden;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
-.cats {
+.theme-chips {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -374,79 +374,79 @@ button.discreto {
   border: 1px solid transparent;
   border-radius: 14px;
   background: var(--chip);
-  color: var(--chip-texto);
+  color: var(--chip-text);
   font-size: 13px;
 }
 
 .chip.on {
-  background: var(--ativo);
-  color: var(--ativo-texto);
+  background: var(--active);
+  color: var(--active-text);
 }
 
-.marca-manual {
+.manual-mark {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   margin-left: 4px;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 12px;
 }
 
-.marca-manual button,
-.canal .apagar {
+.manual-mark button,
+.channel .delete {
   height: 24px;
   padding: 0 6px;
   border-color: transparent;
   background: transparent;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
 }
 
-.canal .apagar {
+.channel .delete {
   margin-left: auto;
 }
 
-.vazio {
+.empty {
   padding: 24px 0;
-  color: var(--texto-2);
+  color: var(--text-2);
   text-align: center;
 }
 
 @media (max-width: 640px) {
-  .canal {
+  .channel {
     grid-template-columns: 40px minmax(0, 1fr);
   }
-  .cats {
+  .theme-chips {
     grid-column: 2;
   }
 }
 
-/* Sugestões de temáticas */
-.sugestoes {
+/* Theme suggestions */
+.suggestions {
   margin-top: 16px;
   padding: 16px;
-  border: 1px dashed var(--borda);
+  border: 1px dashed var(--border);
   border-radius: 12px;
 }
 
-.sugestoes h3 {
+.suggestions h3 {
   margin: 0 0 4px;
 }
 
-.lista-sugestoes {
+.suggestion-list {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.sugestao {
+.suggestion {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 6px 0;
 }
 
-.sugestao label {
+.suggestion label {
   display: flex;
   flex: 1;
   min-width: 0;
@@ -455,54 +455,54 @@ button.discreto {
   cursor: pointer;
 }
 
-.sugestao input {
+.suggestion input {
   align-self: center;
 }
 
-.sugestao .nome-sugestao {
+.suggestion .suggestion-name {
   font-weight: 600;
   white-space: nowrap;
 }
 
-.sugestao .detalhe {
+.suggestion .detail {
   overflow: hidden;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sugestao .ignorar {
+.suggestion .dismiss {
   height: 26px;
   padding: 0 8px;
   border-color: transparent;
   background: transparent;
-  color: var(--texto-2);
+  color: var(--text-2);
   font-size: 13px;
 }
 
-.palavras {
+.words {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.palavra {
+.word {
   height: 30px;
   padding: 0 14px;
   border: 0;
   border-radius: 999px;
   background: var(--chip);
-  color: var(--chip-texto);
+  color: var(--chip-text);
   font-size: 13px;
 }
 
-.palavra span {
+.word span {
   margin-left: 6px;
   opacity: 0.6;
 }
 
-.categoria .youtube {
-  color: var(--texto-2);
+.theme .yt-categories {
+  color: var(--text-2);
   font-size: 12px;
 }

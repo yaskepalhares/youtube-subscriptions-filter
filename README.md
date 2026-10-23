@@ -1,113 +1,120 @@
 # YouTube Subscriptions Filter
 
-*A Safari extension (macOS) that adds topic pills to the top of the YouTube subscriptions feed,
-so you can see only the videos from the channels in a given topic. Channels are imported from your
-subscription list and classified automatically by keywords, with manual adjustments. The interface
-is in Portuguese.*
+A Safari extension for macOS that sorts your YouTube **subscriptions feed** into themes. A row of
+filter pills appears at the top of [youtube.com/feed/subscriptions](https://www.youtube.com/feed/subscriptions)
+so you can see only the videos from, say, your *Music* and *Gaming* channels, without unsubscribing
+from anything or reorganizing your account.
 
----
+The extension reads your subscription list, looks up the official YouTube category of each
+channel's recent videos, **suggests themes on its own** (Music, Gaming, Science, Comedy, Cooking,
+Podcasts…), and sorts every channel into them. You can rename, create or remove themes and move any
+channel by hand. Everything stays on your Mac.
 
-Extensão do Safari para Mac que coloca pílulas de temática no topo do
-[feed de inscrições do YouTube](https://www.youtube.com/feed/subscriptions) e mostra só os vídeos
-dos canais da temática escolhida.
+The interface follows your system language. English and Brazilian Portuguese are included.
 
-## Funcionalidades
+## Features
 
-- **Pílulas no feed**: *Todos*, uma por temática e *Sem categoria*, com o número de vídeos carregados
-  em cada uma. Dá para marcar várias temáticas ao mesmo tempo (o feed mostra os vídeos de qualquer uma
-  delas); desmarcar a última volta para *Todos*. A barra acompanha a rolagem e a seleção fica salva.
-- **Importação dos canais**: o botão *Importar do YouTube* abre `youtube.com/feed/channels`, rola a
-  lista sozinho e lê nome, @, descrição e foto de cada canal. Também aceita o `subscriptions.csv`
-  do Google Takeout.
-- **Categoria oficial do YouTube**: na importação, a extensão lê a categoria (Música, Jogos, Notícias e
-  política…) e as tags dos 3 vídeos mais recentes de cada canal. São pedidos pequenos ao próprio
-  YouTube, cerca de um minuto para 150 canais.
-- **Classificação automática** que combina a categoria do YouTube com palavras-chave procuradas no
-  nome, no @, na descrição e nas tags. Um canal pode ficar em mais de uma temática.
-- **Sugestão de temáticas**: a partir dos seus canais, a extensão propõe temáticas de um catálogo de
-  ~30 (Música, Games, Humor, Esportes, Culinária, Podcasts…) com o número de canais que cada uma
-  pegaria; as marcadas são criadas ao clicar em *Classificar automaticamente*. Também mostra as
-  palavras que mais se repetem entre os canais que sobraram sem categoria.
-- **Ajuste manual**: na revisão, um clique inclui ou tira o canal de uma temática. Ajustes manuais não
-  são desfeitos pela classificação automática nem por uma nova importação (↺ devolve ao automático).
-- **Temáticas editáveis**: criar, renomear, remover e mudar palavras-chave. Vem com Tecnologia,
-  RuneScape, Investimentos e Política como ponto de partida; o catálogo fica em `extensao/catalogo.js`.
-- A barra de pílulas e as configurações seguem o modo claro/escuro do sistema.
-- Opção de esconder os Shorts quando há filtro ativo, e backup/restauração em JSON.
+- **Filter pills on the subscriptions feed.** *All*, one pill per theme and *Uncategorized*, each
+  with the number of loaded videos. Select several themes at once to see videos from any of them;
+  unselecting the last one goes back to *All*. The bar stays in view while you scroll, follows the
+  system light/dark mode, and remembers your selection.
+- **One-click import.** *Import from YouTube* opens your channel list, scrolls through it and reads
+  each channel's name, @handle, description and avatar. A Google Takeout `subscriptions.csv` also
+  works.
+- **Official YouTube categories.** During the import, the extension reads the category (Music,
+  Gaming, News & Politics…) and tags of each channel's 3 most recent videos, using small requests to
+  YouTube itself. It takes about two minutes for 150 channels.
+- **Theme suggestions.** A catalog of ~30 themes is matched against your channels; the settings page
+  shows the ones that fit, how many channels each would take, and examples. It also lists words that
+  repeat among the channels that are still uncategorized, so you can turn them into new themes.
+- **Automatic classification with manual control.** Channels are scored by category and by keywords
+  in their name, @handle, description and video tags. A channel can belong to more than one theme.
+  Adjusting a channel by hand locks it, so later imports and reclassifications don't undo your
+  choice.
+- **Backup.** Export and restore your themes and channels as JSON.
 
-Tudo fica salvo localmente no Safari (`browser.storage.local`). A extensão só conversa com
-`www.youtube.com` (para ler a lista e as categorias dos canais) e não envia dados para nenhum outro lugar.
+## Privacy
 
-## Instalação
+All data is kept in Safari's local extension storage. The extension only talks to
+`www.youtube.com` (to read your channel list and the categories of public videos), has no
+analytics, and sends nothing anywhere else.
 
-Precisa de um Mac com o **Xcode** instalado (gratuito na App Store). Não é preciso abrir o Xcode nem
-ter a conta paga de desenvolvedor da Apple.
+## Installation
+
+You need a Mac with **Xcode** installed (free on the Mac App Store). You don't need to open Xcode or
+pay for an Apple Developer account.
 
 ```bash
 git clone https://github.com/yaskepalhares/youtube-subscriptions-filter.git
 cd youtube-subscriptions-filter
-./instalar.sh
+./install.sh
 ```
 
-O script gera o app que contém a extensão, compila e instala em `~/Applications`. Depois, no Safari:
+The script builds the macOS app that contains the extension and installs it in `~/Applications`.
+Then, in Safari:
 
-1. *Safari › Ajustes… › Extensões*: marque **Filtro de Inscrições**.
-2. Permita o acesso a **youtube.com** (em *Editar Sites…* ou pelo ícone da extensão na barra).
-3. A página de configurações abre sozinha na primeira vez. Clique em *Importar do YouTube*, espere o
-   “Pronto” na aba do YouTube e revise as temáticas.
+1. *Safari › Settings… › Extensions*: turn on **Subscriptions Filter**.
+2. Allow access to **youtube.com** (in *Edit Websites…* or from the extension's toolbar icon).
+3. The settings page opens on first launch. Click *Import from YouTube*, wait for *Done* in the
+   YouTube tab, and review the suggested themes.
 
-**Assinatura.** Se o Mac tiver um certificado *Apple Development* (criado quando você entra com seu
-Apple ID gratuito em *Xcode › Settings › Accounts*), o script assina com ele e a extensão fica
-instalada de vez. Sem certificado, o app sai sem assinatura e o Safari exige *Permitir extensões não
-assinadas* (em *Ajustes › Desenvolvedor*, depois de ativar *Mostrar recursos para desenvolvedores web*
-em *Ajustes › Avançado*) toda vez que for aberto.
+**Signing.** If you added your Apple ID to Xcode (*Xcode › Settings › Accounts*, a free account is
+enough), the script signs the app with it and Safari keeps the extension enabled. Without an
+account, the app is built unsigned and Safari requires *Allow unsigned extensions* (in
+*Settings › Developer*, after turning on *Show features for web developers* in *Settings ›
+Advanced*) every time it starts.
 
-Se o script reclamar das *Command Line Tools*, rode uma vez:
+If the script complains about the *Command Line Tools*, run once:
 
 ```bash
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -license accept
 ```
 
-**Atualizar:** `git pull && ./instalar.sh`. Canais e temáticas continuam salvos.
+**Updating:** `git pull && ./install.sh`. Your themes and channels are kept.
 
-### Só para testar, sem compilar
+### Trying it without building
 
-Em *Safari › Ajustes… › Desenvolvedor*, clique em *Adicionar Extensão Temporária…* e escolha a pasta
-`extensao`. O Safari remove extensões temporárias depois de 24 horas ou quando é fechado.
+In *Safari › Settings… › Developer*, click *Add Temporary Extension…* and choose the `extension`
+folder. Safari removes temporary extensions after 24 hours or when it quits.
 
-## Desenvolvimento
+## Development
 
 ```
-extensao/
-  manifest.json     Manifest V3
-  catalogo.js       temáticas que podem ser sugeridas e categorias do YouTube
-  shared.js         armazenamento, classificador, sugestões, identificação de canais
-  content.js        pílulas e filtro em /feed/subscriptions; importação e leitura das
-                    categorias em /feed/channels
+extension/
+  manifest.json       Manifest V3
+  catalog.js          themes that can be suggested, with keywords and YouTube categories
+  shared.js           storage, translations, classifier, suggestions, channel lookup
+  content.js          pill bar and filter on /feed/subscriptions; import on /feed/channels
   content.css
-  options.html/js/css  página de configurações
-  background.js     abre as configurações na instalação e pelo ícone da barra
-testes/teste.js     testes com páginas simuladas (jsdom)
-instalar.sh         compila e instala o app pela linha de comando
+  options.html/js/css settings page
+  background.js       opens the settings on install and from the toolbar icon
+  _locales/           translations (generated, see below)
+tools/build-locales.py  source of every interface text, in all languages
+tests/test.js         tests on simulated pages (jsdom)
+install.sh            builds and installs the app from the command line
 ```
 
-Testes: `npm install && npm test`.
+Run the tests with `npm install && npm test`.
 
-O YouTube muda a estrutura das páginas de tempos em tempos. Os seletores ficam no começo de
-`content.js` (`SEL_CARDS`, `SELETORES_NOME_CARD`, `SEL_CANAL_LISTA`). Para depurar, abra
-*Desenvolvedor › Mostrar Console JavaScript* na aba do YouTube e procure as mensagens com
-`[Filtro de Inscrições]`; para a página de configurações, use *Desenvolvedor › Inspetor de
-Extensões Web*.
+**Translations.** Every interface text lives in `tools/build-locales.py`. Edit it and run
+`python3 tools/build-locales.py` to regenerate `extension/_locales`. To add a language, add a column
+to the table and an entry to `LOCALES`.
 
-## Limitações conhecidas
+**When YouTube changes its layout.** The selectors are at the top of `extension/content.js`
+(`CARD_SELECTOR`, `CARD_CHANNEL_NAME_SELECTORS`, `CHANNEL_LIST_SELECTOR`). To debug, open
+*Develop › Show JavaScript Console* in the YouTube tab and look for messages starting with
+`[Subscriptions Filter]`; for the settings page use *Develop › Web Extension Inspector*.
 
-- O feed carrega vídeos de todos os canais misturados. Numa temática com poucos vídeos recentes, a
-  página fica curta e o YouTube vai carregando mais aos poucos; o contador "X de Y vídeos
-  carregados" mostra isso.
-- A classificação por palavras-chave erra em canais com descrição vaga; a revisão manual existe para
-  isso.
+## Known limitations
 
-## Licença
+- The feed loads videos from all channels mixed together. With a theme that has few recent videos,
+  the page gets short and YouTube loads more gradually; the "X of Y loaded videos" counter shows it.
+- Keyword matching gets channels with vague descriptions wrong; that's what manual adjustments are
+  for.
+- Safari on macOS only for now. The code is a standard Web Extension, so Chrome, Edge and Firefox
+  ports need little work.
+
+## License
 
 [MIT](LICENSE)

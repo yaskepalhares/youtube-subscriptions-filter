@@ -1,0 +1,209 @@
+/* Items hidden by the filter */
+[data-ytcat-hidden] {
+  display: none !important;
+}
+
+/*
+ * Own colors that follow the system light/dark mode.
+ * (YouTube's color variables are not available to the extension.)
+ */
+#ytcat-bar,
+#ytcat-importer {
+  --ytcat-bg: #ffffff;
+  --ytcat-pill: #f2f2f2;
+  --ytcat-pill-hover: #e5e5e5;
+  --ytcat-text: #0f0f0f;
+  --ytcat-text-2: #606060;
+  --ytcat-active: #0f0f0f;
+  --ytcat-active-text: #ffffff;
+  --ytcat-panel: #ffffff;
+  --ytcat-shadow: rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  #ytcat-bar,
+  #ytcat-importer {
+    --ytcat-bg: #0f0f0f;
+    --ytcat-pill: #272727;
+    --ytcat-pill-hover: #3a3a3a;
+    --ytcat-text: #f1f1f1;
+    --ytcat-text-2: #aaaaaa;
+    --ytcat-active: #f1f1f1;
+    --ytcat-active-text: #0f0f0f;
+    --ytcat-panel: #212121;
+    --ytcat-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Pill bar: between the "Latest" header and the videos */
+.ytcat-bar {
+  position: sticky;
+  top: var(--ytcat-top, 56px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  /* Takes the whole row when it sits inside the video grid. */
+  flex: 0 0 100%;
+  grid-column: 1 / -1;
+  padding: 8px 0 16px;
+  background: var(--ytcat-bg);
+  color: var(--ytcat-text);
+  font-family: "Roboto", "Arial", sans-serif;
+}
+
+.ytcat-pills {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ytcat-pill,
+.ytcat-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ytcat-pill);
+  color: var(--ytcat-text);
+  font: 500 14px/20px "Roboto", "Arial", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ytcat-pill:hover {
+  background: var(--ytcat-pill-hover);
+}
+
+.ytcat-pill:focus-visible,
+.ytcat-settings:focus-visible {
+  outline: 2px solid var(--ytcat-text);
+  outline-offset: 2px;
+}
+
+.ytcat-pill.ytcat-active {
+  background: var(--ytcat-active);
+  color: var(--ytcat-active-text);
+}
+
+.ytcat-count {
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.ytcat-hint {
+  background: transparent;
+  color: var(--ytcat-text-2);
+  text-decoration: underline;
+}
+
+.ytcat-side {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.ytcat-status {
+  color: var(--ytcat-text-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ytcat-settings {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ytcat-text);
+  cursor: pointer;
+}
+
+.ytcat-settings:hover {
+  background: var(--ytcat-pill);
+}
+
+.ytcat-settings svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+/* Import panel on /feed/channels */
+.ytcat-importer {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 3000;
+  box-sizing: border-box;
+  width: 340px;
+  max-width: calc(100vw - 48px);
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--ytcat-panel);
+  color: var(--ytcat-text);
+  box-shadow: 0 6px 32px var(--ytcat-shadow);
+  font: 400 14px/20px "Roboto", "Arial", sans-serif;
+}
+
+.ytcat-imp-title {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.ytcat-imp-status {
+  color: var(--ytcat-text-2);
+}
+
+.ytcat-imp-progress {
+  height: 4px;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--ytcat-pill);
+}
+
+.ytcat-imp-progress > div {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: var(--ytcat-text);
+  transition: width 0.3s ease;
+}
+
+.ytcat-imp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ytcat-imp-actions:empty {
+  display: none;
+}
+
+.ytcat-button {
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ytcat-active);
+  color: var(--ytcat-active-text);
+  font: 500 14px/36px "Roboto", "Arial", sans-serif;
+  cursor: pointer;
+}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="extName">Subscriptions Filter</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <!-- Texts come from _locales/<lang>/messages.json via data-i18n attributes. -->
+  <main class="page">
+    <header class="top">
+      <h1 data-i18n="extName"></h1>
+      <p class="subtitle" data-i18n="optSubtitle"></p>
+    </header>
+
+    <section id="permission" class="notice permission" hidden>
+      <div>
+        <strong data-i18n="optPermissionTitle"></strong>
+        <p data-i18n="optPermissionText"></p>
+        <p id="permission-help" class="help" data-i18n="optPermissionHelp" hidden></p>
+      </div>
+      <button id="btn-permission" class="primary" type="button" data-i18n="optPermissionButton"></button>
+    </section>
+
+    <section id="welcome" class="notice" hidden>
+      <strong data-i18n="optWelcomeTitle"></strong>
+      <ol>
+        <li data-i18n="optWelcomeStep1"></li>
+        <li data-i18n="optWelcomeStep2"></li>
+        <li data-i18n="optWelcomeStep3"></li>
+      </ol>
+      <p>
+        <span data-i18n="optWelcomeThen"></span>
+        <a href="https://www.youtube.com/feed/subscriptions" target="_blank" rel="noopener" data-i18n="optWelcomeFeedLink"></a>
+      </p>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">1</span> <span data-i18n="optChannelsTitle"></span></h2>
+      <p id="channels-status" class="status"></p>
+      <div class="actions">
+        <button id="btn-import-youtube" class="primary" type="button" data-i18n="optImportYoutube"></button>
+        <button id="btn-import-csv" type="button" data-i18n="optImportCsv"></button>
+        <input id="file-csv" type="file" accept=".csv,text/csv" hidden>
+      </div>
+      <p class="help" data-i18n="optImportHelp"></p>
+      <p id="msg-import" class="msg" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">2</span> <span data-i18n="optThemesTitle"></span></h2>
+      <p class="help" data-i18n="optThemesHelp"></p>
+      <div id="theme-list" class="themes"></div>
+      <div class="actions">
+        <button id="btn-new-theme" type="button" data-i18n="optNewTheme"></button>
+        <button id="btn-restore-defaults" type="button" class="subtle" data-i18n="optRestoreDefaults"></button>
+      </div>
+      <div id="suggestions" class="suggestions" hidden>
+        <h3 data-i18n="optSuggestionsTitle"></h3>
+        <p class="help" data-i18n="optSuggestionsHelp"></p>
+        <div id="suggestion-list" class="suggestion-list"></div>
+        <div id="words-block" hidden>
+          <p class="help" data-i18n="optWordsHelp"></p>
+          <div id="frequent-words" class="words"></div>
+        </div>
+      </div>
+      <div class="classify">
+        <button id="btn-classify" class="primary" type="button" data-i18n="optClassify"></button>
+        <label class="check">
+          <input id="chk-include-manual" type="checkbox">
+          <span data-i18n="optIncludeManual"></span>
+        </label>
+      </div>
+      <p id="msg-classify" class="msg" hidden></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">3</span> <span data-i18n="optReviewTitle"></span></h2>
+      <p class="help" data-i18n="optReviewHelp"></p>
+      <div class="filters">
+        <input id="search" type="search" autocomplete="off" data-i18n-placeholder="optSearchPlaceholder">
+        <select id="list-filter" data-i18n-aria-label="optListFilterLabel"></select>
+        <span id="list-count" class="status"></span>
+      </div>
+      <div id="channel-list" class="channels"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">4</span> <span data-i18n="optOptionsTitle"></span></h2>
+      <label class="check">
+        <input id="opt-hide-shorts" type="checkbox">
+        <span data-i18n="optHideShorts"></span>
+      </label>
+      <label class="check">
+        <input id="opt-show-uncategorized" type="checkbox">
+        <span data-i18n="optShowUncategorized"></span>
+      </label>
+      <h3 data-i18n="optBackupTitle"></h3>
+      <div class="actions">
+        <button id="btn-export" type="button" data-i18n="optExport"></button>
+        <button id="btn-restore-backup" type="button" data-i18n="optRestoreBackup"></button>
+        <input id="file-json" type="file" accept=".json,application/json" hidden>
+      </div>
+      <p id="msg-backup" class="msg" hidden></p>
+    </section>
+  </main>
+
+  <script src="catalog.js"></script>
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
